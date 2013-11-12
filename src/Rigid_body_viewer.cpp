@@ -225,19 +225,17 @@ void Rigid_body_viewer::compute_forces()
     /// add the mouse spring force
     if (mouse_spring_.active) {
         // get positions
-        vec2 center = body_.position;
+        vec2 point = body_.points[mouse_spring_.particle_index];
         vec2 mouse = mouse_spring_.mouse_position;
+        vec2 force = mouse - point;
         // linear part : do as in the previous exercise for the linear part
-        vec2 diff = center - mouse;
-        float dist = norm(diff);
-        vec2 drct = diff / dist;
+        float dist = norm(force);
+        vec2 drct = -force / dist;
         float intensity = spring_stiffness_ * dist;
-        intensity += spring_damping_ * dot(body_.linear_velocity, diff) / dist;
+        intensity += spring_damping_ * dot(body_.linear_velocity, -force) / dist;
         body_.force -= intensity * drct;
         // angular part
-        vec2 point = body_.points[mouse_spring_.particle_index];
-        vec2 rPerp = perp(point - center);
-        vec2 force = mouse - point;
+        vec2 rPerp = perp(body_.r[mouse_spring_.particle_index]);
         body_.torque += dot(rPerp, force);
     }
 
@@ -257,7 +255,7 @@ float planes[4][3] = {
     };
 
     float R = 0.9f;
-/*
+
     for(unsigned int i =0; i<4; i++){
         vec2 n(planes[i][0],planes[i][1]);
         vec2 p = -planes[i][2]*n;
@@ -265,16 +263,20 @@ float planes[4][3] = {
             vec2 xj = body_.points[j];
             // Collision detection
             float d = dot(n,(xj-p));
-            if(!(d>0)){
+            if(d<0){
                 // Collision response
                 vec2 vj = body_.linear_velocity + body_.angular_velocity*perp(body_.r[j]);
-                float impuls = -(1+R)*dot(n,vj)/(1/body_.mass + pow(cross(body_r[j],n),2)/body_.inertia);
-                body_.linear_velocity += impuls/body_.mass*n;
-                body_.angular_velocity += cross(body_.r[j],impuls*n)/body_.inertia;
+                if(dot(n,vj)<0){
+                    float denom = 1/body_.mass + cross(n*cross(body_.r[j],n)/body_.inertia,body_.r[j]);
+                    float impuls = -(1+R)*dot(n,vj)/denom;
+                    body_.linear_velocity += (impuls/body_.mass)*n;
+                    body_.angular_velocity += cross(body_.r[j],n)*impuls/body_.inertia;
+                    break;
+                }
             }
         }
 
-    }*/
+    }
 }
 
 
@@ -285,12 +287,6 @@ void Rigid_body_viewer::time_integration(float dt)
 {
     // compute all forces
     compute_forces();
-
-    /** \todo Implement explicit Euler time integration
-     \li update position and orientation
-     \li update linear and angular velocities
-     \li call update_points() at the end to compute the new particle positions
-     */
 
     // body is assigned mass in constructor
     // body_.position (center of gravity), body._inertia are computed in the constructor
