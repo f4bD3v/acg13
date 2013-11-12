@@ -220,7 +220,7 @@ void Rigid_body_viewer::compute_forces()
     body_.force -= damping_linear_ * body_.linear_velocity;
 
     /// add damping to angular movement
-    body_.torque -= damping_linear_ * body_.angular_velocity;
+    body_.torque -= damping_angular_ * body_.angular_velocity;
 
     /// add the mouse spring force
     if (mouse_spring_.active) {
