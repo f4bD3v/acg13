@@ -214,9 +214,11 @@ void Rigid_body_viewer::compute_forces()
     body_.torque = 0.0f;
 
     /// add gravity
+    // no torque because same for all particles
     body_.force -= vec2(0.0f, body_.mass * 9.81f);
 
     /// add damping to linear movement
+    // no torque because same for all particles
     body_.force -= damping_linear_ * body_.linear_velocity;
 
     /// add damping to angular movement
@@ -233,9 +235,10 @@ void Rigid_body_viewer::compute_forces()
         vec2 drct = -force / dist;
         float intensity = spring_stiffness_ * dist;
         intensity += spring_damping_ * dot(body_.linear_velocity, -force) / dist;
-        body_.force -= intensity * drct;
+        force = -intensity * drct;
+        body_.force += force;
         // angular part
-        vec2 rPerp = perp(body_.r[mouse_spring_.particle_index]);
+        vec2 rPerp = perp(point - body_.position);
         body_.torque += dot(rPerp, force);
     }
 
@@ -269,8 +272,8 @@ float planes[4][3] = {
                 if(dot(n,vj)<0){
                     float denom = 1/body_.mass + cross(n*cross(body_.r[j],n)/body_.inertia,body_.r[j]);
                     float impuls = -(1+R)*dot(n,vj)/denom;
-                    body_.linear_velocity += (impuls/body_.mass)*n;
-                    body_.angular_velocity += cross(body_.r[j],n)*impuls/body_.inertia;
+                    //body_.linear_velocity += (impuls/body_.mass)*n;
+                    //body_.angular_velocity += cross(body_.r[j],n)*impuls/body_.inertia;
                     break;
                 }
             }
