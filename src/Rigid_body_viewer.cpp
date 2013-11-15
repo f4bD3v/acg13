@@ -250,11 +250,11 @@ void Rigid_body_viewer::compute_forces()
 
 void Rigid_body_viewer::impulse_based_collisions()
 {
-float planes[4][3] = {
-            {  0.0,  1.0, 1.0 },
-            {  0.0, -1.0, 1.0 },
-            {  1.0,  0.0, 1.0 },
-            { -1.0,  0.0, 1.0 }
+    float planes[4][3] = {
+        {  0.0,  1.0, 1.0 },
+        {  0.0, -1.0, 1.0 },
+        {  1.0,  0.0, 1.0 },
+        { -1.0,  0.0, 1.0 }
     };
 
     float R = 0.9f;
@@ -266,19 +266,27 @@ float planes[4][3] = {
             vec2 xj = body_.points[j];
             // Collision detection
             float d = dot(n,(xj-p));
-            if(d<0){
-                // Collision response
-                vec2 vj = body_.linear_velocity + body_.angular_velocity*perp(body_.r[j]);
-                if(dot(n,vj)<0){
-                    float denom = 1/body_.mass + cross(n*cross(body_.r[j],n)/body_.inertia,body_.r[j]);
-                    float impuls = -(1+R)*dot(n,vj)/denom;
-                    //body_.linear_velocity += (impuls/body_.mass)*n;
-                    //body_.angular_velocity += cross(body_.r[j],n)*impuls/body_.inertia;
+            if (d<0) {
+                vec2 rP = perp(xj - body_.position);
+                ///vec2 rP = per(body_.r[j]);
+                vec2 vj = body_.linear_velocity + body_.angular_velocity * rP;
+                //std::cout << "maybe " << body_.linear_velocity << " " << body_.angular_velocity*perp(body_.r[j]) << " = " << vj << std::endl;
+                if (dot(n,vj)<0) {
+                    float denom = 1/body_.mass + cross(body_.r[j],n) * cross(body_.r[j],n) / body_.inertia;
+                    ///float denom = 1/body_.mass + cross(n*cross(body_.r[j],n)/body_.inertia,body_.r[j]);
+                    float impulse = -(1+R) * dot(n,vj) / denom;
+                    body_.linear_velocity += n * impulse / body_.mass;
+                    body_.angular_velocity += cross(body_.r[j],n) * impulse / body_.inertia;
+
+                    //std::cout << "hit " << n << std::endl;
+                    //std::cout << "impulse " << impulse << std::endl;
+                    //std::cout << "cross " << cross(body_.r[j],n) << std::endl;
+                    //std::cout << "linear " << body_.linear_velocity << std::endl;
+                    //std::cout << "angular " << body_.angular_velocity*perp(body_.r[j]) << std::endl;
                     break;
                 }
             }
         }
-
     }
 }
 
@@ -290,7 +298,6 @@ void Rigid_body_viewer::time_integration(float dt)
 {
     // compute all forces
     compute_forces();
-
     // body is assigned mass in constructor
     // body_.position (center of gravity), body._inertia are computed in the constructor
     // all values needed for the Simulation have been precomputed in the constructor
