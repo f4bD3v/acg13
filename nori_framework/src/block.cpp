@@ -1,19 +1,19 @@
 /*
-    This file is part of Nori, a simple educational ray tracer
+	This file is part of Nori, a simple educational ray tracer
 
-    Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
+	Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
 
-    Nori is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License Version 3
-    as published by the Free Software Foundation.
+	Nori is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License Version 3
+	as published by the Free Software Foundation.
 
-    Nori is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+	Nori is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <nori/block.h>
@@ -27,7 +27,7 @@
 
 NORI_NAMESPACE_BEGIN
 
-ImageBlock::ImageBlock(const Vector2i &size, const ReconstructionFilter *filter) 
+ImageBlock::ImageBlock(const Vector2i &size, const ReconstructionFilter *filter)
 		: m_offset(0), m_size(size) {
 	/* Tabulate the image reconstruction filter for performance reasons */
 	m_filterRadius = filter->getRadius();
@@ -48,11 +48,11 @@ ImageBlock::ImageBlock(const Vector2i &size, const ReconstructionFilter *filter)
 
 ImageBlock::ImageBlock(const Bitmap *image) : m_filter(NULL), m_weightsX(NULL), m_weightsY(NULL) {
 	m_size = Vector2i(image->cols(), image->rows());
-        m_borderSize = 0;
-		
+		m_borderSize = 0;
+
 	/* Allocate space for pixels and border regions */
 	resize(m_size.y() + 2*m_borderSize, m_size.x() + 2*m_borderSize);
-	
+
 	// store pixels
 	for (int y=0; y<m_size.y(); ++y)
 		for (int x=0; x<m_size.x(); ++x)
@@ -76,7 +76,7 @@ Bitmap *ImageBlock::toBitmap() const {
 void ImageBlock::put(const Point2f &_pos, const Color3f &value) {
 	if (!value.isValid()) {
 		/* If this happens, go fix your code instead of removing this warning ;) */
-		cerr << "Integrator: computed an invalid radiance value: " 
+		cerr << "Integrator: computed an invalid radiance value: "
 			 << qPrintable(value.toString()) << endl;
 		return;
 	}
@@ -100,15 +100,15 @@ void ImageBlock::put(const Point2f &_pos, const Color3f &value) {
 	for (int y=bbox.min.y(), idx = 0; y<=bbox.max.y(); ++y)
 		m_weightsY[idx++] = m_filter[(int) (std::abs(y-pos.y()) * m_lookupFactor)];
 
-	for (int y=bbox.min.y(), yr=0; y<=bbox.max.y(); ++y, ++yr) 
-		for (int x=bbox.min.x(), xr=0; x<=bbox.max.x(); ++x, ++xr) 
+	for (int y=bbox.min.y(), yr=0; y<=bbox.max.y(); ++y, ++yr)
+		for (int x=bbox.min.x(), xr=0; x<=bbox.max.x(); ++x, ++xr)
 			coeffRef(y, x) += Color4f(value) * m_weightsX[xr] * m_weightsY[yr];
 }
-	
+
 void ImageBlock::put(ImageBlock &b) {
 	Vector2i offset = b.getOffset() - m_offset;
 	Vector2i size   = b.getSize()   + Vector2i(2*b.getBorderSize());
-	block(offset.y(), offset.x(), size.y(), size.x()) 
+	block(offset.y(), offset.x(), size.y(), size.x())
 		+= b.topLeftCorner(size.y(), size.x());
 }
 
@@ -159,19 +159,19 @@ bool BlockGenerator::next(ImageBlock &block) {
 
 		if (--m_stepsLeft == 0) {
 			m_direction = (m_direction + 1) % 4;
-			if (m_direction == ELeft || m_direction == ERight) 
+			if (m_direction == ELeft || m_direction == ERight)
 				++m_numSteps;
 			m_stepsLeft = m_numSteps;
 		}
 	} while ((m_block.array() < 0).any() ||
-	         (m_block.array() >= m_numBlocks.array()).any());
+			 (m_block.array() >= m_numBlocks.array()).any());
 
 	m_mutex.unlock();
 	return true;
 }
 
-BlockRenderThread::BlockRenderThread(const Scene *scene, Sampler *sampler, 
-		BlockGenerator *blockGenerator, ImageBlock *output) 
+BlockRenderThread::BlockRenderThread(const Scene *scene, Sampler *sampler,
+		BlockGenerator *blockGenerator, ImageBlock *output)
 	 : m_scene(scene), m_blockGenerator(blockGenerator), m_output(output) {
 	/* Create a new sample generator for the current thread */
 	m_sampler = sampler->clone();
@@ -185,40 +185,44 @@ void BlockRenderThread::run() {
 	try {
 		const Integrator *integrator = m_scene->getIntegrator();
 		const Camera *camera = m_scene->getCamera();
-	
+
 		/* Allocate a small image block local to this thread
 		   that will be used to accumulate radiance samples */
-		ImageBlock block(Vector2i(NORI_BLOCK_SIZE), 
+		ImageBlock block(Vector2i(NORI_BLOCK_SIZE),
 			camera->getReconstructionFilter());
-	
+
 		/* Fetch a block to be rendered from the block generator */
 		while (m_blockGenerator->next(block)) {
 			Point2i offset = block.getOffset();
 			Vector2i size  = block.getSize();
-	
+
 			/* Clear its contents */
 			block.clear();
-	
+
 			/* For each pixel and pixel sample sample */
 			for (int y=0; y<size.y(); ++y) {
 				for (int x=0; x<size.x(); ++x) {
 					for (uint32_t i=0; i<m_sampler->getSampleCount(); ++i) {
 						Point2f pixelSample = Point2f(x + offset.x(), y + offset.y()) + m_sampler->next2D();
 						Point2f apertureSample = m_sampler->next2D();
-	
+						///FOU
+						/*
+						if ((int)pixelSample.x() != 150
+								|| (int)pixelSample.y() != 250 || i > 0)
+							continue;*/
 						/* Sample a ray from the camera */
 						Ray3f ray;
 						Color3f value = camera->sampleRay(ray, pixelSample, apertureSample);
-	
+
 						/* Compute the incident radiance */
 						value *= integrator->Li(m_scene, m_sampler, ray);
-	
+
 						/* Store in the image block */
 						block.put(pixelSample, value);
 					}
 				}
 			}
-	
+
 			/* The image block has been processed. Now add it to the "big"
 			   block that represents the entire image */
 			m_output->put(block);
