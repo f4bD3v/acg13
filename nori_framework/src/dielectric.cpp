@@ -39,9 +39,11 @@ public:
         // Compute reflective and refractive angle
         Vector3f wo=reflect(bRec.wi);
         Vector3f normal = (wo-bRec.wi)/norm(wo-bRec.wi);
-        Vector3f wt= 1/eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/eta)*normal;
-		float sin_theta_t = eta*sqrt(1.0f-pow(Frame::cosTheta(bRec.wi),2));
-		float cos_theta_t = sqrt(1.0f-pow(sin_theta_t,2));
+        Vector3f n(0,1,0);
+        float sin_theta_t = eta*sqrt(1.0f-pow(Frame::cosTheta(bRec.wi),2));
+        float cos_theta_t = sqrt(1.0f-pow(sin_theta_t,2));
+        Vector3f wt= 1/eta * wo - (cos_theta_t-Frame::cosTheta(bRec.wi)/eta)*n;
+        //Vector3f wt= 1/eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/eta)*normal;
 
         //Compute Fresnel reflectance
 		
@@ -93,8 +95,10 @@ public:
         // Compute reflective and refractive angle
         Vector3f wo=reflect(bRec.wi);
         Vector3f normal = (wo-bRec.wi)/norm(wo-bRec.wi);
-        Vector3f wt= 1/eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/eta)*normal;
+        Vector3f n(0,1,0);
         float cos_theta_t = sqrt(1-1/pow(eta,2)*(1-pow(Frame::cosTheta(bRec.wi),2)));
+        //Vector3f wt= 1/eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/eta)*normal;
+        Vector3f wt= 1/eta * wo - (cos_theta_t-Frame::cosTheta(bRec.wi)/eta)*n;
 
         //Compute Fresnel reflectance
         float r_par = (Frame::cosTheta(bRec.wi)-eta*cos_theta_t)/(Frame::cosTheta(bRec.wi)+eta*cos_theta_t);
