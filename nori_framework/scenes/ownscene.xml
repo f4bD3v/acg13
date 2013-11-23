@@ -85,7 +85,7 @@
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
-			<float name="eta_t" value="20"/>
+			<float name="eta_t" value="5"/>
 		</bsdf>
 	</mesh>
 	
