@@ -21,29 +21,55 @@ public:
         return Vector3f(-wi.x(), -wi.y(), wi.z());
     }
 
+    /// Compute norm of vector
+    inline float norm(const Vector3f &v) const{
+        return sqrt(pow(v.x(),2)+pow(v.y(),2)+pow(v.z(),2));
+    }
+
     /// Evaluate the BRDF model
     Color3f eval(const BSDFQueryRecord &bRec) const {
         /* This is a smooth BRDF -- return zero if the measure
-           is wrong, or when queried for illumination on the backside */
-        if (bRec.measure != ESolidAngle
-            || Frame::cosTheta(bRec.wi) <= 0
-            || Frame::cosTheta(bRec.wo) <= 0)
+           is wrong */
+        if (bRec.measure != ESolidAngle)
             return Color3f(0.0f);
 
-        /*TODO*/
+        // Compute reflective and refractive angle
+        Vector3f wo=reflect(bRec.wi);
+        Vector3f normal = (wo-bRec.wi)/norm(wo-bRec.wi);
+        Vector3f wt= 1/bRec.eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/bRec.eta)*normal;
+		float cos_theta_t = sqrt(1-1/pow(bRec.eta,2)*(1-pow(Frame::cosTheta(bRec.wi),2)));
+
+        //Compute Fresnel reflectance
+		
+        float r_par = (Frame::cosTheta(bRec.wi)-bRec.eta*cos_theta_t)/(Frame::cosTheta(bRec.wi)+bRec.eta*cos_theta_t);
+        float r_perp = (bRec.eta*Frame::cosTheta(bRec.wi)-cos_theta_t)/(bRec.eta*Frame::cosTheta(bRec.wi)+cos_theta_t);
+        float F_r = 0.5f*(pow(r_par,2)+pow(r_perp,2));
+		
+        //Handle total internal reflection
+        float sin_theta_t = sqrt(1-pow(cos_theta_t,2));
+        if(sin_theta_t>1){
+			F_r = 1.0f;
+        }
+
+		if(bRec.wo == wo){
+			return Color3f(F_r)/abs(Frame::cosTheta(bRec.wi));
+		}
+		else if(bRec.wo == wt){
+			return 1/pow(bRec.eta,2)*Color3f(1.0f-F_r)/abs(Frame::cosTheta(bRec.wi));
+		}
+		else{
+			return Color3f(0.0f);
+		}
     }
 
     /// Compute the density of \ref sample() wrt. solid angles
     float pdf(const BSDFQueryRecord &bRec) const {
         /* This is a smooth BRDF -- return zero if the measure
-           is wrong, or when queried for illumination on the backside */
-        if (bRec.measure != ESolidAngle
-            || Frame::cosTheta(bRec.wi) <= 0
-            || Frame::cosTheta(bRec.wo) <= 0)
+           is wrong */
+        if (bRec.measure != ESolidAngle)
             return 0.0f;
 
-
-        /*TODO*/
+		return 1.0f;
     }
 
     /// Draw a a sample from the BRDF model
@@ -56,14 +82,21 @@ public:
         bRec.measure = ESolidAngle;
 
         // Compute reflective and refractive angle
-        Vector3f wo=reflect(bRec.wi);   //TODO check for total internal reflection
-        Vector3f wt= 1/eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/eta)*Frame.n;
-        float cos_theta_t = sqrt(1-1/pow(eta,2)*(1-pow(Frame::cosTheta(bRect.wi),2)));
+        Vector3f wo=reflect(bRec.wi);
+        Vector3f normal = (wo-bRec.wi)/norm(wo-bRec.wi);
+        Vector3f wt= 1/eta * wo - (Frame::cosTheta(bRec.wi))*(1-1/eta)*normal;
+        float cos_theta_t = sqrt(1-1/pow(eta,2)*(1-pow(Frame::cosTheta(bRec.wi),2)));
 
         //Compute Fresnel reflectance
-        float r_par = (Frame::cosTheta(bRec.wi)-eta*cos_theta_t)/(Frame::cosTheta(bRec.wi)+eta*cost_theta_t);
+        float r_par = (Frame::cosTheta(bRec.wi)-eta*cos_theta_t)/(Frame::cosTheta(bRec.wi)+eta*cos_theta_t);
         float r_perp = (eta*Frame::cosTheta(bRec.wi)-cos_theta_t)/(eta*Frame::cosTheta(bRec.wi)+cos_theta_t);
         float F_r = 0.5f*(pow(r_par,2)+pow(r_perp,2));
+		
+        //Handle total internal reflection
+        float sin_theta_t = sqrt(1-pow(cos_theta_t,2));
+        if(sin_theta_t>1){
+			F_r = 1.0f;
+        }
 
         //Select reflection or refraction
         bool useReflection = true;
@@ -79,7 +112,7 @@ public:
         else {
             bRec.wo = wt; //TODO check that path tracer accepts rays through materials
             bRec.eta = eta;
-            return eval(bRec)*cost_theta_t/pdf(bRec);
+            return eval(bRec)*cos_theta_t/pdf(bRec);
         }
 
         /*Possible issues with implementation:
