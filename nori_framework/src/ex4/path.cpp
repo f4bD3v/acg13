@@ -19,6 +19,8 @@
 NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
+#define light_path_length 5
+#define probabilty_to_continue 0.7
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -112,9 +114,9 @@ public:
 		bool includeEmitted = true;
 
 		// trace path from light
-		const unsigned int length = 5;
-		Intersection itsL[length];
-		Color3f throughputs[length];
+		//const unsigned int light_path_length = 5;
+		Intersection itsL[light_path_length];
+		Color3f throughputs[light_path_length];
 		// 1. Choose a random light
 		const std::vector<Luminaire *> &luminaires = scene->getLuminaires();
 		int index = std::min((int) (luminaires.size() * sampler->next1D()), (int) luminaires.size() - 1);
@@ -134,8 +136,8 @@ public:
 		throughputs[0] = sampleLights(scene, lRec, sampler->next2D());
 		throughputs[0] = scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler);
 		// 6. Compute the light path
-		unsigned int real_length = 5;
-		while (real_length < length) {
+		unsigned int real_length;
+		for (real_length = 1; real_length < light_path_length; ++real_length) {
 			// 6.a. Compute next intersection
 			if (!scene->rayIntersect(rayL, itsL[real_length]))
 				break;
@@ -154,8 +156,6 @@ public:
 			throughputs[real_length] = throughputs[real_length-1] * bsdfWeight;
 			// 6.c. Generate the new ray
 			rayL = Ray3f(itsL[real_length].p, itsL[real_length].shFrame.toWorld(bRec.wo));
-			// 6.d. One more intersection computed, increment the path length
-			real_length++;
 		}
 
 
@@ -208,7 +208,7 @@ public:
 			// 4. Combine eye and light paths
 			// try to combine the current its to each point of the light path
 			// except the first point which is on the light
-			for (unsigned int i = 1; i < real_length; i++) {
+			for (unsigned int i = 1; i < real_length; ++i) {
 				// already in the throughputs
 				// - direct
 				// - transmittance
@@ -249,15 +249,14 @@ public:
 			includeEmitted = bRec.measure == EDiscrete;
 
 			// 6. Apply Russian Roulette after the main bounces (which we want to keep)
-			if (++depth > 1) {///FOU
+			if (++depth > 1) {
 				/* Russian roulette: try to keep path weights equal to one,
 				 while accounting for the radiance change at refractive index
 				 boundaries. Stop with at least some probability to avoid
 				 getting stuck (e.g. due to total internal reflection) */
-				float q = 0.7;
-				if (sampler->next1D() >= q)///FOU
+				if (sampler->next1D() >= probabilty_to_continue)
 					break;
-				throughput /= q;
+				throughput /= probabilty_to_continue;
 			}
 		}
 
