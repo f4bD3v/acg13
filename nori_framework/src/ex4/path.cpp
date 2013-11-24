@@ -21,6 +21,8 @@ NORI_NAMESPACE_BEGIN
 #define GROUP_NUMBER 10
 #define light_path_length 5
 #define probabilty_to_continue 0.7
+///FOU to remove
+#define FOU true
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -196,13 +198,13 @@ public:
 			// 3. Direct illumination sampling
 			LuminaireQueryRecord lRec(its.p);
 			Color3f direct = sampleLights(scene, lRec, sampler->next2D());
-			if ((direct.array() != 0).any()) {
+			if ((direct.array() != 0).any() && FOU) {
 				BSDFQueryRecord bRec(its.toLocal(-ray.d),
 									 its.toLocal(lRec.d), ESolidAngle);
 				// Note: evalTransmittance is 1.0f in our scenes, so we could just skip it
 				result += throughput * direct * bsdf->eval(bRec)
 				* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
-				* std::abs(Frame::cosTheta(bRec.wo));///FOU
+				* std::abs(Frame::cosTheta(bRec.wo));
 			}
 
 			// 4. Combine eye and light paths
@@ -220,7 +222,7 @@ public:
 				scene->rayIntersect(clear, its_tmp);
 				if ((its_tmp.p - itsL[i].p).squaredNorm() > (its.p - itsL[i].p).squaredNorm())
 					// update result by combining the throughputs and the bsdf evaluation
-					result += throughput * throughputs[i] * bsdf->eval(bRec);///FOU * std::abs(Frame::cosTheta(bRec.wo));
+					result += throughput * throughputs[i] * bsdf->eval(bRec) * std::abs(Frame::cosTheta(bRec.wo));
 			}
 
 			// 5. Recursively sample indirect illumination
