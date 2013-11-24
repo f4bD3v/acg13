@@ -18,10 +18,7 @@
 
 NORI_NAMESPACE_BEGIN
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// put your group number here!
 #define GROUP_NUMBER 10
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -137,7 +134,7 @@ public:
 		throughputs[0] = sampleLights(scene, lRec, sampler->next2D());
 		throughputs[0] = scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler);
 		// 6. Compute the light path
-		unsigned int real_length = 1;
+		unsigned int real_length = 5;
 		while (real_length < length) {
 			// 6.a. Compute next intersection
 			if (!scene->rayIntersect(rayL, itsL[real_length]))
@@ -216,7 +213,7 @@ public:
 				// - direct
 				// - transmittance
 				BSDFQueryRecord bRec(its.toLocal(-ray.d),
-									 its.toLocal(itsL[i].p - its.p), ESolidAngle);
+									 its.toLocal(itsL[i].p - its.p).normalized(), ESolidAngle);
 				// test if obstacle in the way
 				Ray3f clear = Ray3f(itsL[i].p, its.p - itsL[i].p);
 				Intersection its_tmp;
