@@ -26,6 +26,12 @@ public:
     inline float norm(const Vector3f &v) const{
         return sqrt(pow(v.x(),2)+pow(v.y(),2)+pow(v.z(),2));
     }
+	
+    inline float clamp(const float val, float low, float high) const{
+		if(val<low) return low;
+		else if(val>high) return high;
+		else return val;
+	}
 
     /// Evaluate the BRDF model
     Color3f eval(const BSDFQueryRecord &bRec) const {
@@ -34,7 +40,7 @@ public:
         if (bRec.measure != ESolidAngle || Frame::cosTheta(bRec.wi)==0)
             return Color3f(0.0f);
         float eta = m_eta_i/m_eta_t;
-		float cos_theta_i = Frame::cosTheta(bRec.wi);
+		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
         if (cos_theta_i < 0){
             eta = 1/eta;
 			cos_theta_i = -cos_theta_i;
@@ -74,10 +80,6 @@ public:
 			result= Color3f(0.0f);
 		}
 		
-		if(!result.isValid()){
-			//std::cout<< "F_r = " << F_r << std::endl;
-			std::cout<< "cos = " << cos_theta_i << std::endl;
-		}
 		return result;
     }
 
@@ -94,7 +96,7 @@ public:
     /// Draw a a sample from the BRDF model
     Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
         float eta = m_eta_i/m_eta_t;
-		float cos_theta_i = Frame::cosTheta(bRec.wi);
+		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
         if (cos_theta_i < 0){
             eta = 1/eta;
 			cos_theta_i =-cos_theta_i;
