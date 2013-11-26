@@ -48,10 +48,10 @@ public:
 
         // Compute reflective and refractive angle
         Vector3f wo=reflect(bRec.wi);
-        Vector3f n(0,1,0);
-        float sin_theta_t = eta*sqrt(1.0f-pow(cos_theta_i,2));
-        float cos_theta_t = sqrt(1.0f-pow(sin_theta_t,2));
+        float sin_theta_t = eta*sqrt(fmax(0.f,1.0f-pow(cos_theta_i,2)));
+        float cos_theta_t = sqrt(fmax(0.f,1.0f-pow(sin_theta_t,2)));
         Vector3f wt= (-eta*wo.x(), -eta*wo.y(), cos_theta_t);
+		if(Frame::cosTheta(wo)>0) wt.z()=-wt.z();
 		
 
         //Compute Fresnel reflectance
@@ -109,30 +109,30 @@ public:
 
         // Compute reflective and refractive angle
         Vector3f wo=reflect(bRec.wi);
-        Vector3f n(0.0f,0.0f,1.0f);
-        float sin_theta_t = eta*sqrt(1.0f-pow(cos_theta_i,2));
-        float cos_theta_t = sqrt(1.0f-pow(sin_theta_t,2));
+        float sin_theta_t = eta*sqrt(fmax(0.f,1.0f-pow(cos_theta_i,2)));
+        float cos_theta_t = sqrt(fmax(0.f,1.0f-pow(sin_theta_t,2)));
         Vector3f wt= (-eta*wo.x(), -eta*wo.y(), cos_theta_t);
+		if(Frame::cosTheta(wo)>0) wt.z()=-wt.z();
 
+        //Compute Fresnel reflectance
+        float r_par = (cos_theta_i-eta*cos_theta_t)/(cos_theta_i+eta*cos_theta_t);
+        float r_perp = (eta*cos_theta_i-cos_theta_t)/(eta*cos_theta_i+cos_theta_t);
+        float F_r = 0.5f*(pow(r_par,2)+pow(r_perp,2));
 
-                              //Compute Fresnel reflectance
-                              float r_par = (cos_theta_i-eta*cos_theta_t)/(cos_theta_i+eta*cos_theta_t);
-                              float r_perp = (eta*cos_theta_i-cos_theta_t)/(eta*cos_theta_i+cos_theta_t);
-                              float F_r = 0.5f*(pow(r_par,2)+pow(r_perp,2));
+        //Handle total internal reflection
+        if(sin_theta_t>1 || sin_theta_t==1){
+            std::cout<< "Total internal reflection \n";
+            F_r = 1.0f;
+        }
 
-                              //Handle total internal reflection
-                              if(sin_theta_t>1){
-                                  std::cout<< "Total internal reflection \n";
-                                  F_r = 1.0f;
-                              }
+        //Select reflection or refraction
+        bool useReflection = true;
+        if (sample.x() > F_r) {
+            useReflection = false;
+        }
 
-                              //Select reflection or refraction
-                              bool useReflection = true;
-                              if (sample.x() > F_r) {
-                                  useReflection = false;
-                              }
+        float cos;
 
-                              float cos;
         if(useReflection){
             bRec.wo = wo;
             bRec.eta = 1.0f;
