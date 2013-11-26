@@ -19,10 +19,8 @@
 NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
-#define light_path_length 5
-#define probabilty_to_continue 0.7
-///FOU to remove
-#define FOU true
+#define probabilty_to_continue_eye 0.7
+#define probabilty_to_continue_light 0.5
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -116,9 +114,10 @@ public:
 		bool includeEmitted = true;
 
 		// trace path from light
-		//const unsigned int light_path_length = 5;
-		Intersection itsL[light_path_length];
-		Color3f throughputs[light_path_length];
+		std::vector<Intersection> itsL;
+		std::vector<Color3f> throughputs;
+////Intersection itsL[light_path_length];
+////Color3f throughputs[light_path_length];
 		// 1. Choose a random light
 		const std::vector<Luminaire *> &luminaires = scene->getLuminaires();
 		int index = std::min((int) (luminaires.size() * sampler->next1D()), (int) luminaires.size() - 1);
@@ -126,26 +125,34 @@ public:
 		// 2. Choose a random point in the light
 		const Mesh *mesh = getMesh(luminaire);
 		Normal3f normal;
-		mesh->samplePosition(sampler->next2D(), itsL[0].p, normal);
+		Intersection it;
+		itsL.push_back(it);
+		mesh->samplePosition(sampler->next2D(), it.p, normal);
 		// 3. Choose a random direction in the same half plane as the normal
 		Vector3f direction = squareToCosineHemisphere(sampler->next2D());
 		while (direction.dot(normal) <= 0)
 			direction = squareToCosineHemisphere(sampler->next2D());
 		// 4. Create the ray form the light in the random direction
-		Ray3f rayL = Ray3f(itsL[0].p, direction);
+		Ray3f rayL = Ray3f(it.p, direction);
 		// 5. Compute initial throughput
-		LuminaireQueryRecord lRec(itsL[0].p);
+		LuminaireQueryRecord lRec(it.p);
+		throughputs.push_back(Color3f(0.0f));
 		throughputs[0] = sampleLights(scene, lRec, sampler->next2D());
 		throughputs[0] = scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler);
 		// 6. Compute the light path
-		unsigned int real_length;
-		for (real_length = 1; real_length < light_path_length; ++real_length) {
+		unsigned int real_length = 1;
+		while (true) {
+			Color3f color;
+			Intersection it;
+			// test russian roulette
+			if (sampler->next1D() >= probabilty_to_continue_light)
+				break;
 			// 6.a. Compute next intersection
-			if (!scene->rayIntersect(rayL, itsL[real_length]))
+			if (!scene->rayIntersect(rayL, it))
 				break;
 			// 6.b. Update throughput
-			BSDFQueryRecord bRec(itsL[real_length].toLocal(-rayL.d));
-			const BSDF *bsdf = itsL[real_length].mesh->getBSDF();
+			BSDFQueryRecord bRec(it.toLocal(-rayL.d));
+			const BSDF *bsdf = it.mesh->getBSDF();
 			Color3f bsdfWeight = bsdf->sample(bRec, sampler->next2D());
 			if ((bsdfWeight.array() == 0).all())
 				break;
@@ -155,11 +162,14 @@ public:
 				cout << "OOps!" << endl;
 				break;
 			}
-			throughputs[real_length] = throughputs[real_length-1] * bsdfWeight;
+			color = throughputs[real_length-1] * bsdfWeight / probabilty_to_continue_light;
 			// 6.c. Generate the new ray
-			rayL = Ray3f(itsL[real_length].p, itsL[real_length].shFrame.toWorld(bRec.wo));
+			rayL = Ray3f(it.p, it.shFrame.toWorld(bRec.wo));
+			// 6.d. Update structures
+			itsL.push_back(it);
+			throughputs.push_back(color);
+			++real_length;
 		}
-
 
 		// trace path from eye
 		while (true) {
@@ -198,13 +208,13 @@ public:
 			// 3. Direct illumination sampling
 			LuminaireQueryRecord lRec(its.p);
 			Color3f direct = sampleLights(scene, lRec, sampler->next2D());
-			if ((direct.array() != 0).any() && FOU) {
+			if ((direct.array() != 0).any()) {
 				BSDFQueryRecord bRec(its.toLocal(-ray.d),
 									 its.toLocal(lRec.d), ESolidAngle);
 				// Note: evalTransmittance is 1.0f in our scenes, so we could just skip it
 				result += throughput * direct * bsdf->eval(bRec)
 				* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
-				* std::abs(Frame::cosTheta(bRec.wo));
+				* std::abs(Frame::cosTheta(bRec.wo)) ;
 			}
 
 			// 4. Combine eye and light paths
@@ -256,9 +266,9 @@ public:
 				 while accounting for the radiance change at refractive index
 				 boundaries. Stop with at least some probability to avoid
 				 getting stuck (e.g. due to total internal reflection) */
-				if (sampler->next1D() >= probabilty_to_continue)
+				if (sampler->next1D() >= probabilty_to_continue_eye)
 					break;
-				throughput /= probabilty_to_continue;
+				throughput /= probabilty_to_continue_eye;
 			}
 		}
 
