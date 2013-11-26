@@ -20,7 +20,7 @@
     <mesh type="obj">
         <string name="filename" value="plane.obj"/>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.55, 0.55, 0.55"/>
+            <color name="albedo" value="0.24,0.255,0.255"/>
         </bsdf>
     </mesh>
     
@@ -32,7 +32,7 @@
             <translate value="1, 1, 0"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.55, 0.55, 0.55"/>
+            <color name="albedo" value="0.24,0.255,0.255"/>
         </bsdf>
     </mesh>
     
@@ -44,7 +44,7 @@
             <translate value="0, 1, -1"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.55, 0.55, 0.55"/>
+             <color name="albedo" value="0.24,0.255,0.255"/>
         </bsdf>
     </mesh>
     
@@ -56,7 +56,7 @@
             <translate value="0, 2, 0"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.55, 0.55, 0.55"/>
+            <color name="albedo" value="0.24,0.255,0.255"/>
         </bsdf>
     </mesh>
     
@@ -83,27 +83,31 @@
             <rotate axis="0, 0, 1" angle="-90"/>
             <translate value="-1, 1, 0"/>
 		</transform>
-		<bsdf type="phong">
-			<color name="kd" value="0, 0, 0.4"/>
-            <color name="ks" value="0.7, 0.9, 1.3"/>
-            <float name="n" value="7"/>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="5"/>
+			<color name="color" value="1,1,1"/>
 		</bsdf>
 	</mesh>
 	
 	<!--Table-->
+	<!--
 	<mesh type = "obj">
 		<string name="filename" value = "table.obj"/>
 		<transform name ="toWorld">
 			<scale value="0.0015,0.0015,0.0015"/>
 			<translate value="0.01155,0.4595,-0.4545"/>
 			<rotate axis="1,0,0" angle = "270"/>
-			<translate value="0.5,0.45,0.2"/>
-			<scale value="1.2,1.2,1.2"/>
+			<translate value="0.5,0.45,0.6"/>
+			<scale value="1.1,1.1,1.1"/>
 		</transform>
-		<bsdf type = "diffuse">
-			<color name="albedo" value="0.25, 0.25, 0.25"/>
-		</bsdf>
-	</mesh>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="1.5"/>
+			<color name="color" value="1.7,0.1,2"/>
+ 		</bsdf>
+	</mesh>-->
+		
 	
 	<!--Chair-->
 	<mesh type = "obj">
@@ -111,14 +115,30 @@
 		<transform name="toWorld">
 			<translate value="0,-48,5.85"/>
 			<scale value="0.01,0.01,0.01"/>
-			<translate value="-0.5,0.45,0.2"/>
+			<translate value="-0.4,0.45,-0.4"/>
 			<rotate axis="0,1,0" angle="45"/>
 		</transform>
-		<bsdf type="diffuse">
-			<color name="albedo" value="0.25, 0.25, 0.25"/>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="1.5"/>
+			<color name="color" value="1,1,1"/>
 		</bsdf>
 	</mesh>
-    
+	
+	<!--Glass-->
+	<mesh type = "obj">
+		<string name="filename" value = "wineglass.obj"/>
+		<transform name ="toWorld">
+			<translate value="-2.775,-2.425,-1.905"/>
+			<scale value="0.3,0.3,0.3"/>
+			<translate value="0.5,0.7,0"/>
+		</transform>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="1.5"/>
+			<color name="color" value="1,1,1"/>
+ 		</bsdf>
+	</mesh>
     
     
     
