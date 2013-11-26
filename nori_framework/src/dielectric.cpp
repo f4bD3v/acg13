@@ -34,22 +34,24 @@ public:
         if (bRec.measure != ESolidAngle || Frame::cosTheta(bRec.wi)==0)
             return Color3f(0.0f);
         float eta = m_eta_i/m_eta_t;
-        if (Frame::cosTheta(bRec.wi) < 0)
+		float cos_theta_i = Frame::cosTheta(bRec.wi);
+        if (cos_theta_i < 0){
             eta = 1/eta;
+			cos_theta_i = -cos_theta_i;
+		}
 
         // Compute reflective and refractive angle
         Vector3f wo=reflect(bRec.wi);
-		wo=wo/norm(wo);
         Vector3f n(0,1,0);
-        float sin_theta_t = eta*sqrt(1.0f-pow(Frame::cosTheta(bRec.wi),2));
+        float sin_theta_t = eta*sqrt(1.0f-pow(cos_theta_i,2));
         float cos_theta_t = sqrt(1.0f-pow(sin_theta_t,2));
-        Vector3f wt= 1/eta * wo - (cos_theta_t-Frame::cosTheta(bRec.wi)/eta)*n;
-		wt=wt/norm(wt);
+        Vector3f wt= 1/eta * wo - (cos_theta_t-cos_theta_i/eta)*n;
+		
 
         //Compute Fresnel reflectance
 		
-        float r_par = (Frame::cosTheta(bRec.wi)-eta*cos_theta_t)/(Frame::cosTheta(bRec.wi)+eta*cos_theta_t);
-        float r_perp = (eta*Frame::cosTheta(bRec.wi)-cos_theta_t)/(eta*Frame::cosTheta(bRec.wi)+cos_theta_t);
+        float r_par = (cos_theta_i-eta*cos_theta_t)/(cos_theta_i+eta*cos_theta_t);
+        float r_perp = (eta*cos_theta_i-cos_theta_t)/(eta*cos_theta_i+cos_theta_t);
 
         float F_r = 0.5f*(pow(r_par,2)+pow(r_perp,2));
 
@@ -61,15 +63,22 @@ public:
             F_r = 1.0f;
         }
 
+		Color3f result;
 		if(bRec.wo == wo){
-            return F_r*mColor/Frame::cosTheta(bRec.wi);
+            result= F_r*mColor/cos_theta_i;
 		}
 		else if(bRec.wo == wt){
-            return mColor/pow(eta,2)*(1.0f-F_r)/Frame::cosTheta(bRec.wi);
+            result= mColor/pow(eta,2)*(1.0f-F_r)/cos_theta_i;
 		}
 		else{
-			return Color3f(0.0f);
+			result= Color3f(0.0f);
 		}
+		
+		if(!result.isValid()){
+			//std::cout<< "F_r = " << F_r << std::endl;
+			std::cout<< "cos = " << cos_theta_i << std::endl;
+		}
+		return result;
     }
 
     /// Compute the density of \ref sample() wrt. solid angles
@@ -85,8 +94,11 @@ public:
     /// Draw a a sample from the BRDF model
     Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
         float eta = m_eta_i/m_eta_t;
-        if (Frame::cosTheta(bRec.wi) < 0)
+		float cos_theta_i = Frame::cosTheta(bRec.wi);
+        if (cos_theta_i < 0){
             eta = 1/eta;
+			cos_theta_i =-cos_theta_i;
+		}
 		else if(Frame::cosTheta(bRec.wi)==0)
             return Color3f(0.0f);
 
@@ -95,16 +107,15 @@ public:
 
         // Compute reflective and refractive angle
         Vector3f wo=reflect(bRec.wi);
-		wo=wo/norm(wo);
         Vector3f n(0,1,0);
-        float sin_theta_t = eta*sqrt(1.0f-pow(Frame::cosTheta(bRec.wi),2));
+        float sin_theta_t = eta*sqrt(1.0f-pow(cos_theta_i,2));
         float cos_theta_t = sqrt(1.0f-pow(sin_theta_t,2));
-        Vector3f wt= 1/eta * wo - (cos_theta_t-Frame::cosTheta(bRec.wi)/eta)*n;
-		wt=wt/norm(wt);
+        Vector3f wt= 1/eta * wo - (cos_theta_t-cos_theta_i/eta)*n;
+		
 
         //Compute Fresnel reflectance
-        float r_par = (Frame::cosTheta(bRec.wi)-eta*cos_theta_t)/(Frame::cosTheta(bRec.wi)+eta*cos_theta_t);
-        float r_perp = (eta*Frame::cosTheta(bRec.wi)-cos_theta_t)/(eta*Frame::cosTheta(bRec.wi)+cos_theta_t);
+        float r_par = (cos_theta_i-eta*cos_theta_t)/(cos_theta_i+eta*cos_theta_t);
+        float r_perp = (eta*cos_theta_i-cos_theta_t)/(eta*cos_theta_i+cos_theta_t);
         float F_r = 0.5f*(pow(r_par,2)+pow(r_perp,2));
 		
         //Handle total internal reflection
@@ -132,11 +143,13 @@ public:
             cos = cos_theta_t;
         }
 		
-        //std::cout << "fr = " << eval(bRec) << std::endl;
-        //std::cout << "cos = " << cos << std::endl;
+       
+        return eval(bRec)*cos/pdf(bRec);
+		
+       	//std::cout << "cos = " << cos << std::endl;
         //std::cout << "pdf = " << pdf(bRec) << std::endl;
         //std::cout << "result = " << eval(bRec)*cos/pdf(bRec) << std::endl;
-        return eval(bRec)*cos/pdf(bRec);
+		
 
         /*Possible issues with implementation:
          *  invalid values for cosine
