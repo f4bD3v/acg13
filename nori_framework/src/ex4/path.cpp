@@ -20,7 +20,7 @@ NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
 #define probabilty_to_continue_eye 0.7
-#define probabilty_to_continue_light 0.5
+#define probabilty_to_continue_light 0.6
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -116,8 +116,6 @@ public:
 		// trace path from light
 		std::vector<Intersection> itsL;
 		std::vector<Color3f> throughputs;
-////Intersection itsL[light_path_length];
-////Color3f throughputs[light_path_length];
 		// 1. Choose a random light
 		const std::vector<Luminaire *> &luminaires = scene->getLuminaires();
 		int index = std::min((int) (luminaires.size() * sampler->next1D()), (int) luminaires.size() - 1);
