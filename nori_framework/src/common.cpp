@@ -269,7 +269,7 @@ float fresnel(float cosThetaI, float extIOR, float intIOR) {
 	if (sinThetaTSqr > 1.0f)
 		return 1.0f;  /* Total internal reflection! */
 
-	float cosThetaT = std::sqrt(1.0f - sinThetaTSqr);
+	float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
 
 	float Rs = (etaI * cosThetaI - etaT * cosThetaT)
 	         / (etaI * cosThetaI + etaT * cosThetaT);
@@ -277,6 +277,28 @@ float fresnel(float cosThetaI, float extIOR, float intIOR) {
 	         / (etaT * cosThetaI + etaI * cosThetaT);
 
 	return (Rs * Rs + Rp * Rp) / 2.0f;
+}
+
+Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
+    float etaI = extIOR, etaT = intIOR;
+
+    if(cosThetaI < 0.0f) {
+        std::swap(etaI,etaT);
+        cosThetaI = -cosThetaI;
+    }
+
+    float eta = etaI/etaT,
+            sinThetaTSqr = eta*eta* (1-cosThetaI*cosThetaI);
+    float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
+
+    if(cosThetaI > 0.0f){
+        return Vector3f(eta*wi.x(), eta*wi.y(), -cosThetaT);
+    }
+    else{
+        return Vector3f(eta*wi.x(), eta*wi.y(), cosThetaT);
+    }
+
+
 }
 
 NORI_NAMESPACE_END

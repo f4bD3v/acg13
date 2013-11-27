@@ -22,7 +22,8 @@ SOURCES += src/common.cpp \
         src/designer.cpp \
         src/designer/meshentry.cpp \
         src/designer/viewer.cpp \
-    src/dielectric.cpp
+    src/dielectric.cpp \
+    src/refractive.cpp
 
 # EX1
 SOURCES += $$PWD/src/depth.cpp
