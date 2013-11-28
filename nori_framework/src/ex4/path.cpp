@@ -20,7 +20,7 @@ NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
 #define probabilty_to_continue_eye 0.7
-#define probabilty_to_continue_light 0.6
+#define probabilty_to_continue_light 0.5
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -133,21 +133,23 @@ public:
 		// 4. Create the ray form the light in the random direction
 		Ray3f rayL = Ray3f(it.p, direction);
 		// 5. Compute initial throughput
-		LuminaireQueryRecord lRec(it.p);
 		throughputs.push_back(Color3f(0.0f));
-		throughputs[0] = sampleLights(scene, lRec, sampler->next2D());
-		throughputs[0] = scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler);
+		throughputs[0] = luminaire->getColor() * luminaires.size() / mesh->pdf();
 		// 6. Compute the light path
 		unsigned int real_length = 1;
+		Color3f color;
 		while (true) {
-			Color3f color;
-			Intersection it;
 			// test russian roulette
 			if (sampler->next1D() >= probabilty_to_continue_light)
 				break;
 			// 6.a. Compute next intersection
 			if (!scene->rayIntersect(rayL, it))
 				break;
+			color = Color3f(1.0f);
+			if (real_length == 1) {
+				Vector3f d = it.p - itsL[0].p;
+				color *= direction.dot(normal) / d.squaredNorm();
+			}
 			// 6.b. Update throughput
 			BSDFQueryRecord bRec(it.toLocal(-rayL.d));
 			const BSDF *bsdf = it.mesh->getBSDF();
@@ -160,7 +162,7 @@ public:
 				cout << "OOps!" << endl;
 				break;
 			}
-			color = throughputs[real_length-1] * bsdfWeight / probabilty_to_continue_light;
+			color *= throughputs[real_length-1] * bsdfWeight / probabilty_to_continue_light;
 			// 6.c. Generate the new ray
 			rayL = Ray3f(it.p, it.shFrame.toWorld(bRec.wo));
 			// 6.d. Update structures
@@ -211,26 +213,26 @@ public:
 									 its.toLocal(lRec.d), ESolidAngle);
 				// Note: evalTransmittance is 1.0f in our scenes, so we could just skip it
 				result += throughput * direct * bsdf->eval(bRec)
-				* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
-				* std::abs(Frame::cosTheta(bRec.wo)) ;
+						* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
+						* std::abs(Frame::cosTheta(bRec.wo))
+						/ real_length;
 			}
 
 			// 4. Combine eye and light paths
 			// try to combine the current its to each point of the light path
 			// except the first point which is on the light
 			for (unsigned int i = 1; i < real_length; ++i) {
-				// already in the throughputs
-				// - direct
-				// - transmittance
 				BSDFQueryRecord bRec(its.toLocal(-ray.d),
 									 its.toLocal(itsL[i].p - its.p).normalized(), ESolidAngle);
 				// test if obstacle in the way
 				Ray3f clear = Ray3f(itsL[i].p, its.p - itsL[i].p);
 				Intersection its_tmp;
 				scene->rayIntersect(clear, its_tmp);
-				if ((its_tmp.p - itsL[i].p).squaredNorm() > (its.p - itsL[i].p).squaredNorm())
+				if ((its_tmp.p - itsL[i].p).squaredNorm() > (its.p - itsL[i].p).squaredNorm()) {
 					// update result by combining the throughputs and the bsdf evaluation
-					result += throughput * throughputs[i] * bsdf->eval(bRec) * std::abs(Frame::cosTheta(bRec.wo));
+					result += throughput * throughputs[i] * bsdf->eval(bRec)
+							* std::abs(Frame::cosTheta(bRec.wo)) / real_length;
+				}
 			}
 
 			// 5. Recursively sample indirect illumination
