@@ -252,6 +252,8 @@ extern Point2f sphericalCoordinates(const Vector3f &dir);
  */
 extern float fresnel(float cosThetaI, float extIOR, float intIOR);
 
+extern Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR);
+
 extern QString indent(const QString &string, int amount = 2);
 
 /// Allocate an aligned region of memory

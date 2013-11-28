@@ -1,25 +1,21 @@
 
 
 
+
 #include <nori/bsdf.h>
 #include <nori/frame.h>
 
 NORI_NAMESPACE_BEGIN
 
 /**
- * \brief Dielectric BRDF model
+ * \brief Pure refractive BRDF model
  */
-class Dielectric : public BSDF {
+class Refractive : public BSDF {
 public:
-    Dielectric(const PropertyList &propList) {
+    Refractive(const PropertyList &propList) {
         m_eta_i = propList.getFloat("eta_i",1.0f); //default refractive index of air
         m_eta_t = propList.getFloat("eta_t",1.5f); //default refractive index of glas
 		mColor = propList.getColor("color",Color3f(0.5f));
-    }
-
-    /// Reflection in local coordinates
-    inline Vector3f reflect(const Vector3f &wi) const {
-        return Vector3f(-wi.x(), -wi.y(), wi.z());
     }
 
     /// Compute norm of vector
@@ -42,8 +38,6 @@ public:
         float eta = m_eta_i/m_eta_t;
 		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
 		
-		float F_r = fresnel(cos_theta_i, m_eta_t, m_eta_i);
-		Vector3f wo = reflect(bRec.wi);
 		Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_t, m_eta_i);
 		
         if (cos_theta_i < 0){
@@ -51,17 +45,7 @@ public:
 			cos_theta_i = -cos_theta_i;
 		}
 
-		Color3f result;
-		if(bRec.wo == wo){
-            result= F_r*mColor/cos_theta_i;
-		}
-		else if(bRec.wo == wt){
-            result= mColor/(eta*eta) * (1.0f-F_r)/cos_theta_i;
-		}
-		else{
-			result= Color3f(0.0f);
-		}
-		
+        Color3f result =  1/(eta*eta*cos_theta_i) * mColor;
 		return result;
     }
 
@@ -83,9 +67,9 @@ public:
             return Color3f(0.0f);
 		
 		
-		float F_r = fresnel(cos_theta_i, m_eta_t, m_eta_i);
-		Vector3f wo = reflect(bRec.wi);
 		Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_t, m_eta_i);
+        //std::cout << "wi = " << bRec.wi << std::endl;
+        //std::cout << "wt " << wt << std::endl;
 		
 		if (cos_theta_i < 0){
             eta = 1/eta;
@@ -93,34 +77,20 @@ public:
 
         bRec.measure = ESolidAngle;
 
-        //Select reflection or refraction
-        bool useReflection = true;
-        if (sample.x() > F_r) {
-            useReflection = false;
-        }
-
-        float cos;
-
-        if(useReflection){
-            bRec.wo = wo;
-            bRec.eta = 1.0f;
-            cos = std::abs(Frame::cosTheta(bRec.wo));
-        }
-        else {
-            bRec.wo = wt; 
-            //bRec.eta = eta;
-            bRec.eta = 1.0f;
-			cos = std::abs(wt.z());
-        }
+        
+        bRec.wo = wt; 
+        bRec.eta = 1.0f;
+        float cos = std::abs(wt.z());
 		
        
-        return eval(bRec)*cos/pdf(bRec);
+        Color3f result = eval(bRec)*cos/pdf(bRec);
+		return result;
     }
 
     /// Return a human-readable summary
     QString toString() const {
         return QString(
-            "Dielectric[\n"
+            "Refractive[\n"
             " eta_i = %1\n"
             " eta_t = %2\n"
             " color = %3\n"
@@ -137,5 +107,5 @@ private:
 	Color3f mColor;
 };
 
-NORI_REGISTER_CLASS(Dielectric, "dielectric");
+NORI_REGISTER_CLASS(Refractive, "refractive");
 NORI_NAMESPACE_END
