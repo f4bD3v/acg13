@@ -37,14 +37,15 @@ public:
     Color3f eval(const BSDFQueryRecord &bRec) const {
         /* This is a smooth BRDF -- return zero if the measure
            is wrong */
-        if (bRec.measure != ESolidAngle || Frame::cosTheta(bRec.wi)==0)
+        if (bRec.measure != ESolidAngle || Frame::cosTheta(bRec.wi)==0
+                    || Frame::cosTheta(bRec.wo)==0)
             return Color3f(0.0f);
         float eta = m_eta_i/m_eta_t;
 		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
 		
-		float F_r = fresnel(cos_theta_i, m_eta_t, m_eta_i);
+        float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
 		Vector3f wo = reflect(bRec.wi);
-		Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_t, m_eta_i);
+        Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
 		
         if (cos_theta_i < 0){
             eta = 1/eta;
@@ -67,10 +68,6 @@ public:
 
     /// Compute the density of \ref sample() wrt. solid angles
     float pdf(const BSDFQueryRecord &bRec) const {
-        /* This is a smooth BRDF -- return zero if the measure
-           is wrong */
-        if (bRec.measure != ESolidAngle)
-            return 0.0f;
 
 		return 1.0f;
     }
@@ -83,9 +80,9 @@ public:
             return Color3f(0.0f);
 		
 		
-		float F_r = fresnel(cos_theta_i, m_eta_t, m_eta_i);
+        float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
 		Vector3f wo = reflect(bRec.wi);
-		Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_t, m_eta_i);
+        Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
 		
 		if (cos_theta_i < 0){
             eta = 1/eta;
@@ -100,6 +97,7 @@ public:
         }
 
         float cos;
+		Color3f f_r;
 
         if(useReflection){
             bRec.wo = wo;
@@ -112,8 +110,8 @@ public:
             bRec.eta = 1.0f;
 			cos = std::abs(wt.z());
         }
-		
-       
+
+ 	   
         return eval(bRec)*cos/pdf(bRec);
     }
 
