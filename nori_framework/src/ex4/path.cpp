@@ -19,8 +19,8 @@
 NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
-#define probabilty_to_continue_eye 0.7
-#define probabilty_to_continue_light 0.5
+#define probability_to_continue_eye 0.7
+#define probability_to_continue_light 0.5
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -119,28 +119,28 @@ public:
 		// 1. Choose a random light
 		const std::vector<Luminaire *> &luminaires = scene->getLuminaires();
 		int index = std::min((int) (luminaires.size() * sampler->next1D()), (int) luminaires.size() - 1);
-		const Luminaire *luminaire = luminaires[index];
+		const Luminaire *luminaire_path = luminaires[index];
 		// 2. Choose a random point in the light
-		const Mesh *mesh = getMesh(luminaire);
-		Normal3f normal;
+		const Mesh *mesh = getMesh(luminaire_path);
+		Normal3f normal_path;
 		Intersection it;
 		itsL.push_back(it);
-		mesh->samplePosition(sampler->next2D(), it.p, normal);
+		mesh->samplePosition(sampler->next2D(), it.p, normal_path);
 		// 3. Choose a random direction in the same half plane as the normal
 		Vector3f direction = squareToCosineHemisphere(sampler->next2D());
-		while (direction.dot(normal) <= 0)
+		while (direction.dot(normal_path) <= 0)
 			direction = squareToCosineHemisphere(sampler->next2D());
 		// 4. Create the ray form the light in the random direction
 		Ray3f rayL = Ray3f(it.p, direction);
 		// 5. Compute initial throughput
 		throughputs.push_back(Color3f(0.0f));
-		throughputs[0] = luminaire->getColor() * luminaires.size() / mesh->pdf();
+		throughputs[0] = luminaire_path->getColor() * luminaires.size() / mesh->pdf();
 		// 6. Compute the light path
 		unsigned int real_length = 1;
 		Color3f color;
 		while (true) {
 			// test russian roulette
-			if (sampler->next1D() >= probabilty_to_continue_light)
+			if (sampler->next1D() >= probability_to_continue_light)
 				break;
 			// 6.a. Compute next intersection
 			if (!scene->rayIntersect(rayL, it))
@@ -148,7 +148,7 @@ public:
 			color = Color3f(1.0f);
 			if (real_length == 1) {
 				Vector3f d = it.p - itsL[0].p;
-				color *= direction.dot(normal) / d.squaredNorm();
+				color *= direction.dot(normal_path) / d.squaredNorm();
 			}
 			// 6.b. Update throughput
 			BSDFQueryRecord bRec(it.toLocal(-rayL.d));
@@ -162,7 +162,7 @@ public:
 				cout << "OOps!" << endl;
 				break;
 			}
-			color *= throughputs[real_length-1] * bsdfWeight / probabilty_to_continue_light;
+			color *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;
 			// 6.c. Generate the new ray
 			rayL = Ray3f(it.p, it.shFrame.toWorld(bRec.wo));
 			// 6.d. Update structures
@@ -266,9 +266,9 @@ public:
 				 while accounting for the radiance change at refractive index
 				 boundaries. Stop with at least some probability to avoid
 				 getting stuck (e.g. due to total internal reflection) */
-				if (sampler->next1D() >= probabilty_to_continue_eye)
+				if (sampler->next1D() >= probability_to_continue_eye)
 					break;
-				throughput /= probabilty_to_continue_eye;
+				throughput /= probability_to_continue_eye;
 			}
 		}
 
