@@ -282,7 +282,9 @@ float fresnel(float cosThetaI, float extIOR, float intIOR) {
 Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
     float etaI = extIOR, etaT = intIOR;
 
-    if(cosThetaI < 0.0f) {
+    bool entering = (cosThetaI > 0.0f);
+
+    if(!entering) {
         std::swap(etaI,etaT);
         cosThetaI = -cosThetaI;
     }
@@ -291,7 +293,7 @@ Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
             sinThetaTSqr = eta*eta* (1-cosThetaI*cosThetaI);
     float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
 
-    if(cosThetaI > 0.0f){
+    if(entering){
         return Vector3f(eta*wi.x(), eta*wi.y(), -cosThetaT);
     }
     else{
