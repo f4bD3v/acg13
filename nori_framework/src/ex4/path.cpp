@@ -19,8 +19,9 @@
 NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
-#define probabilty_to_continue_eye 0.7
-#define probabilty_to_continue_light 0.5
+#define probability_to_continue_eye 0.7
+#define probability_to_continue_light 0.5
+#define use_bidirectional true
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -39,6 +40,15 @@ public:
 		return mesh;
 	}
 
+	/// Return a direction in the hemisphere defined by normal
+	inline const Vector3f getDirection(Normal3f &normal, Sampler *sampler) const {
+		Vector3f direction = squareToUniformSphere(sampler->next2D());
+		if (direction.dot(normal) < 0)
+			direction = -direction;
+		//direction = (Vector3f(-0.1f, -0.9f, 0.5f)).normalized();
+		return direction.normalized();
+	}
+
 	/**
 	 * \brief Directly sample the lights, providing a sample weighted by 1/pdf
 	 * where pdf is the probability of sampling that given sample
@@ -49,52 +59,28 @@ public:
 	 * \param lRec
 	 * the luminaire information storage
 	 *
-	 * \param _sample
-	 * the 2d uniform sample
+	 * \param size
+	 * size of the luminaires used
 	 *
 	 * \return the sampled light radiance including its geometric, visibility and pdf weights
 	 */
-	inline Color3f sampleLights(const Scene *scene, LuminaireQueryRecord &lRec, const Point2f &_sample) const {
-		Point2f sample(_sample);
-		const std::vector<Luminaire *> &luminaires = scene->getLuminaires();
-
-		if (luminaires.size() == 0)
-			throw NoriException("LightIntegrator::sampleLights(): No luminaires were defined!");
-
-		// 1. Choose one luminaire at random
-		int index = std::min((int) (luminaires.size() * sample.x()), (int) luminaires.size() - 1);
-		sample.x() = luminaires.size() * sample.x() - index; // process sample to be Unif[0;1] again
-
-		// 2. Sample the position on the luminaire mesh
-		// using Mesh::samplePosition(const Point2d &sample, Point3f &p, Normal3f &n)
-		lRec.luminaire = luminaires[index];
-		const Mesh *mesh = getMesh(lRec.luminaire);
-		mesh->samplePosition(sample, lRec.p, lRec.n);
+	inline Color3f sampleLight(const Scene *scene, LuminaireQueryRecord &lRec, int size) const {
+		// Compute distance between the two points (from first mesh, to luminaire mesh)
 		lRec.d = lRec.p - lRec.ref;
-
-		// 3. Compute distance between the two points (from first mesh, to luminaire mesh)
 		float dist2 = lRec.d.squaredNorm();
 		lRec.dist = std::sqrt(dist2);
 		lRec.d /= lRec.dist;
 
-		// 4. Correct side of luminaire
+		// Correct side of luminaire
 		// /!\ if on the wrong side, then we get no contribution!
 		float dp = -lRec.n.dot(lRec.d);
-		lRec.pdf = dp > 0 ? mesh->pdf() * dist2 / dp : 0.0f;
-
 		if (dp > 0) {
-			// 5. Check the visibility
+			// Check the visibility
 			if (scene->rayIntersect(Ray3f(lRec.ref, lRec.d, Epsilon, lRec.dist * (1 - 1e-4f))))
 				return Color3f(0.0f);
-			// 6. Geometry term on luminaire's side
-			// Visiblity + Geometric term on the luminaire's side
-			//      G(x, x', w, w') = ( cos(w) cos(w') ) / ||x - x'||^2
-			float G_lum = dp / dist2;
-
-			// 7. Radiance from luminaire
 			Color3f value = lRec.luminaire->getColor();
-
-			return value * G_lum * luminaires.size() / mesh->pdf();
+cout << "G_lum is\n" << dp << " / " << dist2 << " = " << dp/dist2 << "\n\n";
+			return value * dp * size  / dist2 / getMesh(lRec.luminaire)->pdf();
 		} else {
 			// wrong side of luminaire!
 			return Color3f(0.0f);
@@ -102,58 +88,58 @@ public:
 	}
 
 	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &_ray) const {
-		Ray3f ray(_ray);
-		Intersection its;
-		Color3f result(0.0f), throughput(1.0f);
-		int depth = 0;
 		float eta = 1.0f;
-		// whether to use the emitted light we would hit
-		// - first hit => yes
-		// - hit through a mirror => yes
-		// - hit through something else => no (direct lighting already takes it into account)
-		bool includeEmitted = true;
-
-		// trace path from light
+		// LIGHT PATH
 		std::vector<Intersection> itsL;
 		std::vector<Color3f> throughputs;
 		// 1. Choose a random light
 		const std::vector<Luminaire *> &luminaires = scene->getLuminaires();
 		int index = std::min((int) (luminaires.size() * sampler->next1D()), (int) luminaires.size() - 1);
-		const Luminaire *luminaire = luminaires[index];
+		const Luminaire *luminaire_path = luminaires[index];
 		// 2. Choose a random point in the light
-		const Mesh *mesh = getMesh(luminaire);
-		Normal3f normal;
-		Intersection it;
-		itsL.push_back(it);
-		mesh->samplePosition(sampler->next2D(), it.p, normal);
+		const Mesh *mesh = getMesh(luminaire_path);
+		Normal3f normal_path;
+		itsL.push_back(Intersection());
+		mesh->samplePosition(sampler->next2D(), itsL[0].p, normal_path);
 		// 3. Choose a random direction in the same half plane as the normal
-		Vector3f direction = squareToCosineHemisphere(sampler->next2D());
-		while (direction.dot(normal) <= 0)
-			direction = squareToCosineHemisphere(sampler->next2D());
+		const Vector3f direction = getDirection(normal_path, sampler);
 		// 4. Create the ray form the light in the random direction
-		Ray3f rayL = Ray3f(it.p, direction);
+		Ray3f rayL = Ray3f(itsL[0].p, direction);
+cout << "light is at\n" << itsL[0].p << "\n\n";
 		// 5. Compute initial throughput
-		throughputs.push_back(Color3f(0.0f));
-		throughputs[0] = luminaire->getColor() * luminaires.size() / mesh->pdf();
+		throughputs.push_back(Color3f(1.0f));
 		// 6. Compute the light path
 		unsigned int real_length = 1;
-		Color3f color;
-		while (true) {
+		Color3f bsdfWeight = Color3f(1.0f);
+		while (use_bidirectional) {
 			// test russian roulette
-			if (sampler->next1D() >= probabilty_to_continue_light)
+			if (sampler->next1D() >= probability_to_continue_light)
 				break;
+			// add new intersection and throughput
+			itsL.push_back(Intersection());
+			throughputs.push_back(Color3f(1.0f));
 			// 6.a. Compute next intersection
-			if (!scene->rayIntersect(rayL, it))
+			if (!scene->rayIntersect(rayL, itsL[real_length]))
 				break;
-			color = Color3f(1.0f);
 			if (real_length == 1) {
-				Vector3f d = it.p - itsL[0].p;
-				color *= direction.dot(normal) / d.squaredNorm();
+cout << "first its is at\n" << itsL[1].p << "\n\n";
+				Vector3f vec = itsL[real_length-1].p - itsL[real_length].p;
+				float d = std::sqrt(vec.squaredNorm());
+				vec /= d;
+				throughputs[1] = luminaire_path->getColor() * luminaires.size()
+								 * INV_PI * scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
+								 * std::abs(Frame::cosTheta(itsL[real_length].toLocal(vec)));
 			}
 			// 6.b. Update throughput
-			BSDFQueryRecord bRec(it.toLocal(-rayL.d));
-			const BSDF *bsdf = it.mesh->getBSDF();
-			Color3f bsdfWeight = bsdf->sample(bRec, sampler->next2D());
+			//Vector3f vec = itsL[real_length-1].p - itsL[real_length].p;
+			//float d = std::sqrt(vec.squaredNorm());
+			//vec /= d;
+			throughputs[real_length] *= throughputs[real_length-1]
+										* bsdfWeight / probability_to_continue_light
+										;//* std::abs(Frame::cosTheta(itsL[real_length].toLocal(vec)));
+			BSDFQueryRecord bRec(itsL[real_length].toLocal(-rayL.d));
+			const BSDF *bsdf = itsL[real_length].mesh->getBSDF();
+			bsdfWeight = bsdf->sample(bRec, sampler->next2D());
 			if ((bsdfWeight.array() == 0).all())
 				break;
 			eta *= bRec.eta;
@@ -162,16 +148,23 @@ public:
 				cout << "OOps!" << endl;
 				break;
 			}
-			color *= throughputs[real_length-1] * bsdfWeight / probabilty_to_continue_light;
 			// 6.c. Generate the new ray
-			rayL = Ray3f(it.p, it.shFrame.toWorld(bRec.wo));
+			rayL = Ray3f(itsL[real_length].p, itsL[real_length].shFrame.toWorld(bRec.wo));
 			// 6.d. Update structures
-			itsL.push_back(it);
-			throughputs.push_back(color);
 			++real_length;
 		}
 
-		// trace path from eye
+
+		// EYE PATH
+		Ray3f ray(_ray);
+		Intersection its;
+		Color3f result(0.0f), throughput(1.0f);
+		int depth = 0;
+		// whether to use the emitted light we would hit
+		// - first hit => yes
+		// - hit through a mirror => yes
+		// - hit through something else => no (direct lighting already takes it into account)
+		bool includeEmitted = true;
 		while (true) {
 			// 1. Intersect our ray with something
 			scene->rayIntersect(ray, its);
@@ -206,32 +199,44 @@ public:
 			}
 
 			// 3. Direct illumination sampling
-			LuminaireQueryRecord lRec(its.p);
-			Color3f direct = sampleLights(scene, lRec, sampler->next2D());
+			LuminaireQueryRecord lRec(luminaire_path, its.p, itsL[0].p, normal_path);
+			Color3f direct = /*Color3f(0.0f);*/sampleLight(scene, lRec, luminaires.size());
 			if ((direct.array() != 0).any()) {
+				// Yay !
+				// Update result by combining the throughputs and the bsdf evaluation
 				BSDFQueryRecord bRec(its.toLocal(-ray.d),
 									 its.toLocal(lRec.d), ESolidAngle);
-				// Note: evalTransmittance is 1.0f in our scenes, so we could just skip it
+cout << "direct in depth " << depth << " is\n" << direct << "\n\n";
+cout << "throughput is\n" << throughput << "\n\n";
 				result += throughput * direct * bsdf->eval(bRec)
-						* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
-						* std::abs(Frame::cosTheta(bRec.wo))
-						/ real_length;
+				* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
+				* std::abs(Frame::cosTheta(bRec.wo));
 			}
 
 			// 4. Combine eye and light paths
 			// try to combine the current its to each point of the light path
 			// except the first point which is on the light
 			for (unsigned int i = 1; i < real_length; ++i) {
-				BSDFQueryRecord bRec(its.toLocal(-ray.d),
-									 its.toLocal(itsL[i].p - its.p).normalized(), ESolidAngle);
 				// test if obstacle in the way
-				Ray3f clear = Ray3f(itsL[i].p, its.p - itsL[i].p);
-				Intersection its_tmp;
-				scene->rayIntersect(clear, its_tmp);
-				if ((its_tmp.p - itsL[i].p).squaredNorm() > (its.p - itsL[i].p).squaredNorm()) {
-					// update result by combining the throughputs and the bsdf evaluation
-					result += throughput * throughputs[i] * bsdf->eval(bRec)
-							* std::abs(Frame::cosTheta(bRec.wo)) / real_length;
+				Vector3f bRec1_wi = its.p - itsL[i].p;
+				float dist = std::sqrt(bRec1_wi.squaredNorm());
+				bRec1_wi /= dist;
+				if (!scene->rayIntersect(Ray3f(itsL[i].p, bRec1_wi, Epsilon, dist * (1 - 1e-4f)))) {
+					// Yay !
+					// Update result by combining the throughputs and the bsdf evaluation
+					BSDFQueryRecord bRec1(itsL[i].toLocal(bRec1_wi), //DAMN
+										  itsL[i].toLocal((itsL[i-1].p - itsL[i].p).normalized()), ESolidAngle);
+					BSDFQueryRecord bRec(its.toLocal(-ray.d),
+										 its.toLocal((itsL[i].p - its.p).normalized()), ESolidAngle); //DAMN
+					if (Frame::cosTheta(bRec1.wi) > Epsilon
+						&& Frame::cosTheta(bRec.wo) > Epsilon) {
+							const BSDF *bsdf1 = itsL[i].mesh->getBSDF();
+cout << "direct1 is\n" << throughputs[i] << "\n\n";
+cout << "throughput1 is\n" << bsdf->eval(bRec)   * std::abs(Frame::cosTheta(bRec.wo)) << "\n\n";
+							result += throughput * throughputs[i]
+									  * bsdf1->eval(bRec1) * std::abs(Frame::cosTheta(bRec1.wo))
+									  * bsdf->eval(bRec)   * std::abs(Frame::cosTheta(bRec.wo));// bsdf->pdf(bRec);
+					}
 				}
 			}
 
@@ -266,13 +271,14 @@ public:
 				 while accounting for the radiance change at refractive index
 				 boundaries. Stop with at least some probability to avoid
 				 getting stuck (e.g. due to total internal reflection) */
-				if (sampler->next1D() >= probabilty_to_continue_eye)
+				if (sampler->next1D() >= probability_to_continue_eye)
 					break;
-				throughput /= probabilty_to_continue_eye;
+				throughput /= probability_to_continue_eye;
 			}
+cout << "Going on !\n\n";
 		}
 
-		return result;
+		return result / real_length;
 	}
 
 	QString toString() const {
