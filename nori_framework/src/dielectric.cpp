@@ -46,7 +46,7 @@ public:
         float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
 		Vector3f wo = reflect(bRec.wi);
         Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
-		
+
         if (cos_theta_i < 0){
             eta = 1/eta;
 			cos_theta_i = -cos_theta_i;
@@ -84,9 +84,10 @@ public:
 		Vector3f wo = reflect(bRec.wi);
         Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
 		
+
 		if (cos_theta_i < 0){
             eta = 1/eta;
-		}
+        }
 
         bRec.measure = ESolidAngle;
 
@@ -98,6 +99,8 @@ public:
 
         float cos;
 		Color3f f_r;
+
+
 
         if(useReflection){
             bRec.wo = wo;
