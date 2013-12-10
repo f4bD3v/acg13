@@ -42,11 +42,17 @@ public:
         Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
 		
         if (cos_theta_i < 0){
-            eta = 1/eta;
+            eta = 1.0f/eta;
 			cos_theta_i = -cos_theta_i;
 		}
 
-        Color3f result =  1/(eta*eta*cos_theta_i) * mColor;
+		Color3f result;
+        if(bRec.wo == wt){
+            result =  1.0f/(eta*eta*cos_theta_i) * mColor;
+        }
+        else {
+            result = Color3f(0.0f);
+        }
 		return result;
     }
 
@@ -70,7 +76,7 @@ public:
         //std::cout << "wt " << wt << std::endl;
 		
 		if (cos_theta_i < 0){
-            eta = 1/eta;
+            eta = 1.0f/eta;
 		}
 
         bRec.measure = ESolidAngle;

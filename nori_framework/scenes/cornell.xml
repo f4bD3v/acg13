@@ -20,7 +20,7 @@
     <mesh type="obj">
         <string name="filename" value="plane.obj"/>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.255,0.255,0.01"/>
+            <color name="albedo" value="0.255,0.25,0.1"/>
         </bsdf>
     </mesh>
     
@@ -32,7 +32,7 @@
             <translate value="1, 1, 0"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.255,0.255,0.01"/>
+            <color name="albedo" value="0.255,0.064,0.064"/>
         </bsdf>
     </mesh>
     
@@ -44,7 +44,7 @@
             <translate value="0, 1, -1"/>
         </transform>
         <bsdf type="diffuse">
-             <color name="albedo" value="0.1,0.1,1"/>
+             <color name="albedo" value="0.255,0.25,0.1"/>
         </bsdf>
     </mesh>
     
@@ -56,7 +56,7 @@
             <translate value="0, 2, 0"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.255,0.255,0.01"/>
+            <color name="albedo" value="0.255,0.25,0.1"/>
         </bsdf>
     </mesh>
     
@@ -77,17 +77,15 @@
         
 	</mesh>
     
-	<!-- mirror -->
+	<!-- left wall -->
     <mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name = "toWorld">
             <rotate axis="0, 0, 1" angle="-90"/>
             <translate value="-1, 1, 0"/>
 		</transform>
-		<bsdf type="dielectric">
-            <float name="eta_i" value="1"/>
-			<float name="eta_t" value="5"/>
-			<color name="color" value="0.5,0.5,0.5"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.1, 0.149, 0.237"/>
 		</bsdf>
 	</mesh>
 	
@@ -113,13 +111,13 @@
 	<mesh type = "obj">
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
-			<scale value="0.6,0.6,0.6"/>
+			<scale value="0.5,0.5,0.5"/>
 			<translate value="0,0.6,0.6"/>
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
 			<float name="eta_t" value="1.5"/>
-			<color name="color" value="0.5,0.5,0.5"/>
+			<color name="color" value="0.255,0.25,0.1"/>
  		</bsdf>
 	</mesh>
     

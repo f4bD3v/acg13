@@ -37,40 +37,11 @@ public:
     Color3f eval(const BSDFQueryRecord &bRec) const {
         /* This is a smooth BRDF -- return zero if the measure
            is wrong */
-        if (bRec.measure != ESolidAngle || Frame::cosTheta(bRec.wi)==0
-                    || Frame::cosTheta(bRec.wo)==0)
-            return Color3f(0.0f);
-
-        float eta = m_eta_i/m_eta_t;
-		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
-		
-        float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
-		Vector3f wo = reflect(bRec.wi);
-        Vector3f wt = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
-
-        if (cos_theta_i < 0){
-            eta = 1/eta;
-			cos_theta_i = -cos_theta_i;
-		}
-
-		Color3f result;
-		if(bRec.wo == wo){
-            result= F_r*mColor/cos_theta_i;
-		}
-		else if(bRec.wo == wt){
-            result= mColor/(eta*eta) * (1.0f-F_r)/cos_theta_i;
-		}
-		else{
-                       result= Color3f(0.0f);
-                       //std::cout << bRec.wi.dot(Vector3f(0,0,-1)) << std::endl;
-		}
-		
-		return result;
+        return Color3f(0.0);
     }
 
     /// Compute the density of \ref sample() wrt. solid angles
     float pdf(const BSDFQueryRecord &bRec) const {
-
 		return 1.0f;
     }
 
@@ -88,7 +59,8 @@ public:
 		
 
 		if (cos_theta_i < 0){
-            eta = 1/eta;
+            eta = 1.0f/eta;
+            cos_theta_i = -cos_theta_i;
         }
 
         bRec.measure = ESolidAngle;
@@ -102,22 +74,21 @@ public:
         float cos;
 		Color3f f_r;
 
-
-
         if(useReflection){
             bRec.wo = wo;
             bRec.eta = 1.0f;
             cos = std::abs(Frame::cosTheta(bRec.wo));
+            f_r = F_r*mColor/cos_theta_i;
         }
         else {
             bRec.wo = wt; 
             //bRec.eta = eta;
             bRec.eta = 1.0f;
 			cos = std::abs(wt.z());
+            f_r = mColor/(eta*eta) * (1.0f-F_r)/cos_theta_i;
         }
-
  	   
-        return eval(bRec)*cos/pdf(bRec);
+        return f_r*cos;
     }
 
     /// Return a human-readable summary
