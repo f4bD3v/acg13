@@ -279,7 +279,7 @@ float fresnel(float cosThetaI, float extIOR, float intIOR) {
 	return (Rs * Rs + Rp * Rp) / 2.0f;
 }
 
-Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
+Vector3f  refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
     float etaI = extIOR, etaT = intIOR;
 
     bool entering = (cosThetaI > 0.0f);

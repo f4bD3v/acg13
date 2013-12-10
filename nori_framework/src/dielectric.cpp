@@ -51,6 +51,7 @@ public:
 		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
         if(cos_theta_i==0)
             return Color3f(0.0f);
+
 		
 		
         float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
@@ -63,32 +64,28 @@ public:
             cos_theta_i = -cos_theta_i;
         }
 
-        bRec.measure = ESolidAngle;
+        bRec.measure = EDiscrete;
 
+        //F_r = 1.0f;
         //Select reflection or refraction
         bool useReflection = true;
         if (sample.x() > F_r) {
             useReflection = false;
         }
-
-        float cos;
-		Color3f f_r;
-
         if(useReflection){
             bRec.wo = wo;
             bRec.eta = 1.0f;
-            cos = std::abs(Frame::cosTheta(bRec.wo));
-            f_r = F_r*mColor/cos_theta_i;
+            return F_r*mColor;
         }
         else {
             bRec.wo = wt; 
             //bRec.eta = eta;
             bRec.eta = 1.0f;
-			cos = std::abs(wt.z());
-            f_r = mColor/(eta*eta) * (1.0f-F_r)/cos_theta_i;
+            float cos = std::abs(wt.z());
+            return mColor/(eta*eta) * (1.0f-F_r)*cos/cos_theta_i;
         }
  	   
-        return f_r*cos;
+        return Color3f(0.0f);
     }
 
     /// Return a human-readable summary
