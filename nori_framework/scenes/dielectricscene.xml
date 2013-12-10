@@ -62,10 +62,11 @@
     
     <!-- light -->
 	<mesh type="obj">
-		<string name="filename" value="sphere.obj"/>
+		<string name="filename" value="plane.obj"/>
         <transform name="toWorld">
-            <scale value="0.1, 0.1, 0.1"/>
-            <translate value="0, 1.98, 0"/>
+            <scale value="0.2, 0.2, 0.2"/>
+			<rotate axis="1, 0, 0" angle="180"/>
+            <translate value="0, 2, 0"/>
         </transform>
 		<luminaire type="area">
 			<color name="radiance" value="20, 30, 12"/>

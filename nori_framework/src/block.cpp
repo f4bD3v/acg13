@@ -76,8 +76,8 @@ Bitmap *ImageBlock::toBitmap() const {
 void ImageBlock::put(const Point2f &_pos, const Color3f &value) {
 	if (!value.isValid()) {
 		/* If this happens, go fix your code instead of removing this warning ;) */
-        cerr << "Integrator: computed an invalid radiance value: "
-             << qPrintable(value.toString()) << endl;
+		cerr << "Integrator: computed an invalid radiance value: "
+			 << qPrintable(value.toString()) << endl;
 		return;
 	}
 
@@ -205,6 +205,11 @@ void BlockRenderThread::run() {
 					for (uint32_t i=0; i<m_sampler->getSampleCount(); ++i) {
 						Point2f pixelSample = Point2f(x + offset.x(), y + offset.y()) + m_sampler->next2D();
 						Point2f apertureSample = m_sampler->next2D();
+						/*if (std::abs(pixelSample.x()-200) > 1
+								|| std::abs(pixelSample.y()-250) > 10
+								|| i > 0) {
+							//continue;
+						}*/
 						/* Sample a ray from the camera */
 						Ray3f ray;
 						Color3f value = camera->sampleRay(ray, pixelSample, apertureSample);

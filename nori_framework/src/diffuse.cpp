@@ -35,9 +35,11 @@ public:
 		/* This is a smooth BRDF -- return zero if the measure
 		   is wrong, or when queried for illumination on the backside */
 		if (bRec.measure != ESolidAngle
-			|| Frame::cosTheta(bRec.wi) <= 0 
-			|| Frame::cosTheta(bRec.wo) <= 0)
-			return Color3f(0.0f);
+			|| Frame::cosTheta(bRec.wi) <= 0
+			|| Frame::cosTheta(bRec.wo) <= 0){
+						   //cout << "bonsoir_eval\n\n";
+						   return 0.0f;
+		}
 
 		/* The BRDF is simply the albedo / pi */
 		return m_albedo * INV_PI;
@@ -48,9 +50,11 @@ public:
 		/* This is a smooth BRDF -- return zero if the measure
 		   is wrong, or when queried for illumination on the backside */
 		if (bRec.measure != ESolidAngle
-			|| Frame::cosTheta(bRec.wi) <= 0 
-			|| Frame::cosTheta(bRec.wo) <= 0)
-			return 0.0f;
+			|| Frame::cosTheta(bRec.wi) <= 0
+			|| Frame::cosTheta(bRec.wo) <= 0) {
+						   //cout << "bonsoir_pdf\n\n";
+						   return 0.0f;
+		}
 
 
 		/* Importance sampling density wrt. solid angles:
@@ -64,13 +68,13 @@ public:
 
 	/// Draw a a sample from the BRDF model
 	Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
-        if (Frame::cosTheta(bRec.wi) <= 0) {
-            //std::cout << "trouble! diffuse.cpp line 68\n";
+		if (Frame::cosTheta(bRec.wi) <= 0) {
+			//std::cout << "trouble! diffuse.cpp line 68\n";
 			return Color3f(0.0f);
-        }
+		}
 
 		bRec.measure = ESolidAngle;
-		
+
 		/* Warp a uniformly distributed sample on [0,1]^2
 		   to a direction on a cosine-weighted hemisphere */
 		bRec.wo = squareToCosineHemisphere(sample);
@@ -90,8 +94,8 @@ public:
 			"  albedo = %1\n"
 			"]").arg(m_albedo.toString());
 	}
-        
-        Color3f getColor() const { return m_albedo; }
+
+		Color3f getColor() const { return m_albedo; }
 
 	EClassType getClassType() const { return EBSDF; }
 private:
