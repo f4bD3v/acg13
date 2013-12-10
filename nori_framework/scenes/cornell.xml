@@ -69,7 +69,7 @@
             <translate value="0, 2, 0"/>
         </transform>
 		<luminaire type="area">
-			<color name="radiance" value="20, 30, 12"/>
+			<color name="radiance" value="200, 300, 120"/>
 		</luminaire>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0, 0, 0"/>
@@ -111,13 +111,13 @@
 	<mesh type = "obj">
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
-			<scale value="0.5,0.5,0.5"/>
+			<scale value="0.6,0.6,0.6"/>
 			<translate value="0,0.6,0.6"/>
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
 			<float name="eta_t" value="1.5"/>
-			<color name="color" value="0.255,0.25,0.1"/>
+			<color name="color" value="1,1,1"/>
  		</bsdf>
 	</mesh>
     
