@@ -294,10 +294,10 @@ Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
     float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
 
     if(entering){
-        return Vector3f(eta*wi.x(), eta*wi.y(), -cosThetaT);
+        return Vector3f(-eta*wi.x(), -eta*wi.y(), -cosThetaT);
     }
     else{
-        return Vector3f(eta*wi.x(), eta*wi.y(), cosThetaT);
+        return Vector3f(-eta*wi.x(), -eta*wi.y(), cosThetaT);
     }
 
 

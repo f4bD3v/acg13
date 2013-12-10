@@ -113,7 +113,7 @@
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
 			<scale value="0.6,0.6,0.6"/>
-			<translate value="0,0.6,0"/>
+			<translate value="0,0.6,0.6"/>
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>

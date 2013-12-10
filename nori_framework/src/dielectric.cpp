@@ -40,6 +40,7 @@ public:
         if (bRec.measure != ESolidAngle || Frame::cosTheta(bRec.wi)==0
                     || Frame::cosTheta(bRec.wo)==0)
             return Color3f(0.0f);
+
         float eta = m_eta_i/m_eta_t;
 		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
 		
@@ -60,7 +61,8 @@ public:
             result= mColor/(eta*eta) * (1.0f-F_r)/cos_theta_i;
 		}
 		else{
-			result= Color3f(0.0f);
+                       result= Color3f(0.0f);
+                       //std::cout << bRec.wi.dot(Vector3f(0,0,-1)) << std::endl;
 		}
 		
 		return result;
@@ -76,7 +78,7 @@ public:
     Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
         float eta = m_eta_i/m_eta_t;
 		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi),-1,1);
-		if(cos_theta_i==0)
+        if(cos_theta_i==0)
             return Color3f(0.0f);
 		
 		
