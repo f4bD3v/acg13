@@ -191,6 +191,23 @@ public:
 			real_length = 1;
 			Color3f bsdfWeight = Color3f(1.0f);
 			while (real_length < max_light_points) {
+				// 9. Check eye path of length 0
+				//    Try to connect itsL[real_length-1] to the eye
+				//    Find concerned pixel (most probably not the current one)
+				//    Update light_image and NOT RESULT !
+				// 9.a. Create vector from last its to eye
+				Vector3f vec = itsL[real_length-1].p - _ray.o;
+				float dist = std::sqrt(vec.squaredNorm());
+				vec /= dist;
+				// 9.b. Check visibility
+				if (!scene->rayIntersect(Ray3f(itsL[real_length-1].p, vec, Epsilon, dist * (1 - 1e-4f)))) {
+					// 9.c. Find concerned pixel
+///TODO
+					Point2f pixel;
+					// 9.d. Update concerned pixel in light_image
+					light_image->put(pixel, throughputs[real_length-1]);
+				}
+
 				// test russian roulette
 				if (sampler->next1D() >= probability_to_continue_light)
 					break;
@@ -212,12 +229,6 @@ public:
 									 / probability_to_continue_light;
 				} else {
 					throughputs[real_length] *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;
-///TODO
-					// 9. Check eye path of length 0
-					//    Try to connect itsL[real_length-1] to the eye
-					//    Find concerned pixel (most probably not the current one)
-					//    Update light_image and NOT RESULT !
-					efewf
 				}
 
 				// 10. sample the bsdf for the new direction
@@ -243,8 +254,8 @@ public:
 		// ==============================================
 		// ================== EYE PATH ==================
 		// ==============================================
-		Ray3f ray(_ray);
 		Intersection its;
+		Ray3f ray(_ray);
 		Color3f result(0.0f), throughput(1.0f);
 		int depth = 1;
 		// whether to use the emitted light we would hit
