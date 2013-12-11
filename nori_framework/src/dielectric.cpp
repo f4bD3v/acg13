@@ -48,16 +48,15 @@ public:
 			}
 cout << "BEAUTIFUL reflection\n\n";
 			float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
-			return mColor * (1.0f-F_r) / (eta*eta*cos_theta_i);
+			//return mColor * (1.0f-F_r) / (eta*eta*cos_theta_i);
 		} else {
 			w = reflect(bRec.wi) - bRec.wo;
 			if ((w.array() <= 1e-3 && w.array() >= -1e-3).all()) {
 cout << "BEAUTIFUL refractive\n\n";
 				float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
-				return mColor * F_r / std::abs(Frame::cosTheta(bRec.wo));
+				//return mColor * F_r / std::abs(Frame::cosTheta(bRec.wo));
 			}
 		}
-
 		return Color3f(0.0f);
 	}
 
@@ -86,7 +85,7 @@ cout << "BEAUTIFUL refractive\n\n";
 				eta = 1.0f/eta;
 				cos_theta_i = -cos_theta_i;
 			}
-			return mColor * (1.0f - F_r) * std::abs(Frame::cosTheta(bRec.wo))
+			return mColor * (1.0f - F_r) //* std::abs(Frame::cosTheta(bRec.wo))
 						  / (eta * eta * cos_theta_i);
 		}
 	}
