@@ -1,23 +1,23 @@
 /*
-    This file is part of Nori, a simple educational ray tracer
+	This file is part of Nori, a simple educational ray tracer
 
-    Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
+	Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
 
-    Nori is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License Version 3
-    as published by the Free Software Foundation.
+	Nori is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License Version 3
+	as published by the Free Software Foundation.
 
-    Nori is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+	Nori is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /* =======================================================================
-     This file contains classes for parallel rendering of "image blocks".
+	 This file contains classes for parallel rendering of "image blocks".
  * ======================================================================= */
 
 #if !defined(__PARALLEL_H)
@@ -42,7 +42,7 @@ NORI_NAMESPACE_BEGIN
  * nearby samples on the pixel (according to the used reconstruction filter).
  *
  * When rendering with filters, the samples in a rectangular
- * region will generally also contribute to pixels just outside of 
+ * region will generally also contribute to pixels just outside of
  * this region. For that reason, this class also stores information about
  * a small border region around the rectangle, whose size depends on the
  * properties of the reconstruction filter.
@@ -58,21 +58,21 @@ public:
 	 *     filter provided here.
 	 */
 	ImageBlock(const Vector2i &size, const ReconstructionFilter *filter);
-        
-        /**
-         * Load an image block from a bitmap
-         */
-        ImageBlock(const Bitmap *image);
-	
+
+		/**
+		 * Load an image block from a bitmap
+		 */
+		ImageBlock(const Bitmap *image);
+
 	/// Release all memory
 	~ImageBlock();
-	
+
 	/// Configure the offset of the block within the main image
 	void setOffset(const Point2i &offset) { m_offset = offset; }
 
 	/// Return the offset of the block within the main image
 	inline const Point2i &getOffset() const { return m_offset; }
-	
+
 	/// Configure the size of the block within the main image
 	void setSize(const Point2i &size) { m_size = size; }
 
@@ -84,7 +84,7 @@ public:
 
 	/**
 	 * \brief Turn the block into a proper bitmap
-	 * 
+	 *
 	 * This entails normalizing all pixels and discarding
 	 * the border region.
 	 */
@@ -99,14 +99,14 @@ public:
 	/**
 	 * \brief Merge another image block into this one
 	 *
-	 * During the merge operation, this function locks 
+	 * During the merge operation, this function locks
 	 * the destination block using a mutex.
 	 */
 	void put(ImageBlock &b);
 
 	/// Lock the image block (using an internal mutex)
 	inline void lock() const { m_mutex.lock(); }
-	
+
 	/// Unlock the image block
 	inline void unlock() const { m_mutex.unlock(); }
 
@@ -140,7 +140,7 @@ public:
 	 *      Maximum size of the individual blocks
 	 */
 	BlockGenerator(const Vector2i &size, int blockSize);
-	
+
 	/**
 	 * \brief Return the next block to be rendered
 	 *
@@ -180,7 +180,7 @@ public:
 	 * \ref ImageBlock instance that represents the entire image
 	 */
 	BlockRenderThread(const Scene *scene, Sampler *sampler,
-		BlockGenerator *blockGenerator, ImageBlock *output);
+		BlockGenerator *blockGenerator, ImageBlock *output, ImageBlock *light_image);
 
 	/// Release all memory
 	virtual ~BlockRenderThread();
@@ -191,6 +191,7 @@ private:
 	const Scene *m_scene;
 	BlockGenerator *m_blockGenerator;
 	ImageBlock *m_output;
+	ImageBlock *m_light_image;
 	Sampler *m_sampler;
 };
 

@@ -171,8 +171,8 @@ bool BlockGenerator::next(ImageBlock &block) {
 }
 
 BlockRenderThread::BlockRenderThread(const Scene *scene, Sampler *sampler,
-		BlockGenerator *blockGenerator, ImageBlock *output)
-	 : m_scene(scene), m_blockGenerator(blockGenerator), m_output(output) {
+		BlockGenerator *blockGenerator, ImageBlock *output, ImageBlock *light_image)
+	: m_scene(scene), m_blockGenerator(blockGenerator), m_output(output), m_light_image(light_image) {
 	/* Create a new sample generator for the current thread */
 	m_sampler = sampler->clone();
 }

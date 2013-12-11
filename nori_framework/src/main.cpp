@@ -45,12 +45,15 @@ void render(Scene *scene, const QString &filename, int version) {
 	/* Launch the GUI */
 	NoriWindow window(&result);
 
+	/* Create light image */
+	ImageBlock light_image(outputSize, camera->getReconstructionFilter());
+
 	/* Launch one render thread per core */
 	int nCores = getCoreCount();
 	std::vector<BlockRenderThread *> threads;
 	for (int i=0; i<nCores; ++i) {
 		BlockRenderThread *thread = new BlockRenderThread(
-			scene, scene->getSampler(), &blockGenerator, &result);
+			scene, scene->getSampler(), &blockGenerator, &result, &light_image);
 		thread->start();
 		threads.push_back(thread);
 	}
