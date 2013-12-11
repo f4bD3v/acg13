@@ -21,7 +21,7 @@ NORI_NAMESPACE_BEGIN
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
 #define probability_to_continue_light 0.9
-#define max_eye_its 1000
+#define max_eye_its 2
 #define max_light_its 1000
 
 GROUP_NAMESPACE_BEGIN()
