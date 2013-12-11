@@ -73,7 +73,7 @@ cout << "BEAUTIFUL refractive\n\n";
 			return Color3f(0.0f);
 
 		bRec.eta = 1.0f;
-		bRec.measure = ESolidAngle;
+		bRec.measure = EDiscrete;
 		float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
 
 		if (sample.x() < F_r) {
@@ -86,7 +86,7 @@ cout << "BEAUTIFUL refractive\n\n";
 				eta = 1.0f/eta;
 				cos_theta_i = -cos_theta_i;
 			}
-			return mColor * (1.0f - F_r) //* std::abs(Frame::cosTheta(bRec.wo))
+			return mColor * (1.0f - F_r) * std::abs(Frame::cosTheta(bRec.wo))
 						  / (eta * eta * cos_theta_i);
 		}
 	}
