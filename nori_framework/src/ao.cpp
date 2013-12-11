@@ -1,19 +1,19 @@
 /*
-    This file is part of Nori, a simple educational ray tracer
+	This file is part of Nori, a simple educational ray tracer
 
-    Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
+	Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
 
-    Nori is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License Version 3
-    as published by the Free Software Foundation.
+	Nori is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License Version 3
+	as published by the Free Software Foundation.
 
-    Nori is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+	Nori is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <nori/integrator.h>
@@ -23,17 +23,17 @@
 NORI_NAMESPACE_BEGIN
 
 Vector3f hemisphereSampling(const Point2f &sample) {
-        float cosTheta = sample.x();
-        float sinTheta = std::sqrt(std::max((float) 0, 1-cosTheta*cosTheta));
+		float cosTheta = sample.x();
+		float sinTheta = std::sqrt(std::max((float) 0, 1-cosTheta*cosTheta));
 
-        float sinPhi, cosPhi;
-        sincosf(2.0f * M_PI * sample.y(), &sinPhi, &cosPhi);
+		float sinPhi, cosPhi;
+		sincosf(2.0f * M_PI * sample.y(), &sinPhi, &cosPhi);
 
-        return Vector3f(cosPhi * sinTheta, sinPhi * sinTheta, cosTheta);
+		return Vector3f(cosPhi * sinTheta, sinPhi * sinTheta, cosTheta);
 }
 
 /**
- * \brief Ambient occlusion: a very simple rendering technique that 
+ * \brief Ambient occlusion: a very simple rendering technique that
  * approximates ambient lighting by accounting for local shadowing.
  */
 class AmbientOcclusion : public Integrator {
@@ -44,7 +44,7 @@ public:
 		m_length = propList.getFloat("length", 0.1f);
 	}
 
-	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray) const {
+	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, ImageBlock *) const {
 		/* Find the surface that is visible in the requested direction */
 		Intersection its;
 		if (!scene->rayIntersect(ray, its))

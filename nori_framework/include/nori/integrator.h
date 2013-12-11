@@ -1,19 +1,19 @@
 /*
-    This file is part of Nori, a simple educational ray tracer
+	This file is part of Nori, a simple educational ray tracer
 
-    Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
+	Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
 
-    Nori is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License Version 3
-    as published by the Free Software Foundation.
+	Nori is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License Version 3
+	as published by the Free Software Foundation.
 
-    Nori is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+	Nori is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #if !defined(__INTEGRATOR_H)
@@ -28,7 +28,7 @@ NORI_NAMESPACE_BEGIN
 /**
  * \brief Abstract integrator (i.e. a rendering technique)
  *
- * In Nori, the different rendering techniques are collectively referred to as 
+ * In Nori, the different rendering techniques are collectively referred to as
  * integrators, since they perform integration over a high-dimensional
  * space. Each integrator represents a specific approach for solving
  * the light transport equation---usually favored in certain scenarios, but
@@ -51,10 +51,10 @@ public:
 	 * \return
 	 *    A (usually) unbiased estimate of the radiance in this direction
 	 */
-	virtual Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray) const = 0;
+	virtual Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, ImageBlock *light_image) const = 0;
 
 	/**
-	 * \brief Return the type of object (i.e. Mesh/BSDF/etc.) 
+	 * \brief Return the type of object (i.e. Mesh/BSDF/etc.)
 	 * provided by this instance
 	 * */
 	EClassType getClassType() const { return EIntegrator; }

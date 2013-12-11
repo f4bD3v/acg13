@@ -148,9 +148,19 @@ public:
 		}
 	}
 
-	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &_ray) const {
+	/**
+	 * @brief Li
+	 * @param scene
+	 * @param sampler
+	 * @param _ray
+	 * @param light_image
+	 * @return
+	 */
+	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &_ray, ImageBlock *light_image) const {
 		float eta = 1.0f;
-		// LIGHT PATH
+		// ================================================
+		// ================== LIGHT PATH ==================
+		// ================================================
 		std::vector<Intersection> itsL;
 		std::vector<Color3f> throughputs;
 		unsigned int real_length = 0;
@@ -163,16 +173,19 @@ public:
 			luminaires_size = (int) luminaires.size();
 			int index = std::min((int) (luminaires_size * sampler->next1D()), luminaires_size - 1);
 			luminaire_path = luminaires[index];
+
 			// 2. Choose a random point in the light
 			const Mesh *mesh = getMesh(luminaire_path);
 			itsL.push_back(Intersection());
 			mesh->samplePosition(sampler->next2D(), itsL[0].p, normal_path);
+
 			// 3. Choose a random direction in the same half plane as the normal
 			const Vector3f direction = getDirection(normal_path, sampler);
 			// 4. Create the ray form the light in the random direction
 			Ray3f rayL = Ray3f(itsL[0].p, direction);
 			// 5. Push initial throughput
 			throughputs.push_back(Color3f(1.0f));
+
 			// 6. Compute the light path
 			real_length = 1;
 			Color3f bsdfWeight = Color3f(1.0f);
@@ -183,10 +196,11 @@ public:
 				// add new intersection and throughput
 				itsL.push_back(Intersection());
 				throughputs.push_back(Color3f(1.0f));
-				// 6.a. Compute next intersection
+				// 7. Compute next intersection
 				if (!scene->rayIntersect(rayL, itsL[real_length]))
 					break;
-				// 6.b. Update throughput
+
+				// 8. Update throughput
 				if (real_length == 1) {
 					Vector3f vec = itsL[real_length-1].p - itsL[real_length].p;
 					float d = std::sqrt(vec.squaredNorm());
@@ -197,9 +211,11 @@ public:
 									 / probability_to_continue_light;
 				} else {
 					throughputs[real_length] *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;
-					// check eye path of length 9
+					// 9. Check eye path of length 0
 // TODO
 				}
+
+				// 10. sample the bsdf for the new direction
 				BSDFQueryRecord bRec(itsL[real_length].toLocal(-rayL.d));
 				const BSDF *bsdf = itsL[real_length].mesh->getBSDF();
 				bsdfWeight = bsdf->sample(bRec, sampler->next2D());
@@ -211,15 +227,17 @@ public:
 					cout << "OOps!" << endl;
 					break;
 				}
-				// 6.c. Generate the new ray
+
+				// 11. Generate the new ray
 				rayL = Ray3f(itsL[real_length].p, itsL[real_length].shFrame.toWorld(bRec.wo));
-				// 6.d. Update length
+				// 12. Update length
 				++real_length;
 			}
 		}
 
-
-		// EYE PATH
+		// ==============================================
+		// ================== EYE PATH ==================
+		// ==============================================
 		Ray3f ray(_ray);
 		Intersection its;
 		Color3f result(0.0f), throughput(1.0f);
@@ -341,10 +359,6 @@ public:
 
 			// 6. Apply Russian Roulette after the main bounces (which we want to keep)
 			if (++depth > 2) {
-				/* Russian roulette: try to keep path weights equal to one,
-				 while accounting for the radiance change at refractive index
-				 boundaries. Stop with at least some probability to avoid
-				 getting stuck (e.g. due to total internal reflection) */
 				if (sampler->next1D() >= probability_to_continue_eye)
 					break;
 				throughput /= probability_to_continue_eye;

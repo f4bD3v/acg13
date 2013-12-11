@@ -215,7 +215,7 @@ void BlockRenderThread::run() {
 						Color3f value = camera->sampleRay(ray, pixelSample, apertureSample);
 
 						/* Compute the incident radiance */
-						value *= integrator->Li(m_scene, m_sampler, ray);
+						value *= integrator->Li(m_scene, m_sampler, ray, m_light_image);
 
 						/* Store in the image block */
 						block.put(pixelSample, value);
