@@ -8,6 +8,7 @@
  ***********************************************/
 
 #include <nori/acg.h>
+#include <nori/block.h>
 #include <nori/integrator.h>
 #include <nori/sampler.h>
 #include <nori/luminaire.h>
@@ -211,8 +212,12 @@ public:
 									 / probability_to_continue_light;
 				} else {
 					throughputs[real_length] *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;
+///TODO
 					// 9. Check eye path of length 0
-// TODO
+					//    Try to connect itsL[real_length-1] to the eye
+					//    Find concerned pixel (most probably not the current one)
+					//    Update light_image and NOT RESULT !
+					efewf
 				}
 
 				// 10. sample the bsdf for the new direction

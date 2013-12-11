@@ -226,6 +226,7 @@ void BlockRenderThread::run() {
 			/* The image block has been processed. Now add it to the "big"
 			   block that represents the entire image */
 			m_output->put(block);
+			m_output->put(*m_light_image);
 		}
 	} catch (const NoriException &ex) {
 		cerr << "Caught a critical exception within a rendering thread: " << qPrintable(ex.getReason()) << endl;
