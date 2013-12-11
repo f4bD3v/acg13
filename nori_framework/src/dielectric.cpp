@@ -69,7 +69,7 @@ cout << "BEAUTIFUL refractive\n\n";
 	/// Draw a a sample from the BRDF model
 	Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
 		float cos_theta_i = clamp(Frame::cosTheta(bRec.wi), -1, 1);
-		if (cos_theta_i==0)
+		if (cos_theta_i == 0)
 			return Color3f(0.0f);
 
 		bRec.eta = 1.0f;
@@ -80,13 +80,13 @@ cout << "BEAUTIFUL refractive\n\n";
 			bRec.wo = reflect(bRec.wi);
 			return mColor * F_r;
 		} else {
+			bRec.wo = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
 			float eta = m_eta_i/m_eta_t;
 			if (cos_theta_i < 0) {
 				eta = 1.0f/eta;
 				cos_theta_i = -cos_theta_i;
 			}
-			bRec.wo = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t);
-			return mColor * (1.0f - F_r) * std::abs(Frame::cosTheta(bRec.wo))
+			return mColor * (1.0f - F_r) //* std::abs(Frame::cosTheta(bRec.wo))
 						  / (eta * eta * cos_theta_i);
 		}
 	}

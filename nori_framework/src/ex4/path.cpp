@@ -109,7 +109,7 @@ public:
 		// 6. Compute the light path
 		unsigned int real_length = 1;
 		Color3f bsdfWeight = Color3f(1.0f);
-		cout << "light is at:\n" << itsL[0].p << "\n";
+//cout << "light is at:\n" << itsL[0].p << "\n";
 		while (real_length < max_light_its) {
 			// test russian roulette
 			if (sampler->next1D() >= probability_to_continue_light)
@@ -139,9 +139,9 @@ public:
 			}
 			BSDFQueryRecord bRec(itsL[real_length].toLocal(-rayL.d));
 			const BSDF *bsdf = itsL[real_length].mesh->getBSDF();
-			cout << "Let's hope... " << real_length << "\n";
+//cout << "Let's hope... " << real_length << "\n";
 			bsdfWeight = bsdf->sample(bRec, sampler->next2D());
-			cout << bsdfWeight << "\n";
+//cout << bsdfWeight << "\n";
 			if ((bsdfWeight.array() == 0).all())
 				break;
 			eta *= bRec.eta;
@@ -152,8 +152,8 @@ public:
 			}
 			// 6.c. Generate the new ray
 			rayL = Ray3f(itsL[real_length].p, itsL[real_length].shFrame.toWorld(bRec.wo));
-			cout << "Ray.o:" << rayL.o << "\n";
-			cout << "Ray.d:" << rayL.d << "\n\n";
+//cout << "Ray.o:" << rayL.o << "\n";
+//cout << "Ray.d:" << rayL.d << "\n\n";
 			// 6.d. Update length
 			++real_length;
 		}
@@ -220,9 +220,9 @@ cout << "BEAUTIFUL !!!!!!!!!!!!!!!!!!\n\n";
 				BSDFQueryRecord bRec(its.toLocal(-ray.d),
 									 its.toLocal(lRec.d), ESolidAngle);
 				result += throughput * direct * bsdf->eval(bRec)
-				* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
-				* std::abs(Frame::cosTheta(bRec.wo))
-				/ (depth);
+						* scene->evalTransmittance(Ray3f(lRec.ref, lRec.d, 0, lRec.dist), sampler)
+						* std::abs(Frame::cosTheta(bRec.wo))
+						/ (depth);
 			}
 
 			// 4. Combine eye and light paths
@@ -240,17 +240,15 @@ cout << "BEAUTIFUL !!!!!!!!!!!!!!!!!!\n\n";
 										  itsL[i].toLocal((itsL[i-1].p - itsL[i].p).normalized()), ESolidAngle);
 					BSDFQueryRecord bRec(its.toLocal(-ray.d),
 										 its.toLocal(-bRec1_wi), ESolidAngle);
-					if (bsdf->pdf(bRec) != 0) {
-						const BSDF *bsdf1 = itsL[i].mesh->getBSDF();
+					const BSDF *bsdf1 = itsL[i].mesh->getBSDF();
 //cout << "throughput\n" << throughput << "\n";
 //cout << "eval1\n" << bsdf1->eval(bRec1) << "\n";
 //cout << "eval\n" << bsdf->eval(bRec) << "\n";
 //cout << "throughputs\n" << throughputs[i] << "\n\n";
-						result += throughput * throughputs[i]
-								* bsdf1->eval(bRec1) * std::abs(Frame::cosTheta(bRec1.wo))
-								* bsdf->eval(bRec)   * std::abs(Frame::cosTheta(bRec.wo))
-								/ (i + 1 + depth);
-					}
+					result += throughput * throughputs[i]
+							* bsdf1->eval(bRec1) * std::abs(Frame::cosTheta(bRec1.wo))
+							* bsdf->eval(bRec)   * std::abs(Frame::cosTheta(bRec.wo))
+							/ (i + 1 + depth);
 				}
 			}
 

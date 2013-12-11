@@ -30,7 +30,7 @@ Color3f Color3f::toSRGB() const {
 		if (value <= 0.0031308f)
 			result[i] = 12.92f * value;
 		else
-			result[i] = (1.0f + 0.055f) 
+			result[i] = (1.0f + 0.055f)
 				* std::pow(value, 1.0f/2.4f) -  0.055f;
 	}
 
@@ -68,7 +68,7 @@ float Color3f::getLuminance() const {
 	return coeff(0) * 0.212671f + coeff(1) * 0.715160f + coeff(2) * 0.072169f;
 }
 
-Transform::Transform(const Eigen::Matrix4f &trafo) 
+Transform::Transform(const Eigen::Matrix4f &trafo)
 	: m_transform(trafo), m_inverse(trafo.inverse()) { }
 
 QString Transform::toString() const {
@@ -78,13 +78,13 @@ QString Transform::toString() const {
 }
 QString Transform::toLineString() const {
 	std::ostringstream oss;
-        for(int row = 0; row < 4; ++row){
-            if(row > 0) oss << "; ";
-            for(int col = 0; col < 4; ++col){
-                if(col > 0) oss << ", ";
-                oss << m_transform(row, col);
-            }
-        }
+		for(int row = 0; row < 4; ++row){
+			if(row > 0) oss << "; ";
+			for(int col = 0; col < 4; ++col){
+				if(col > 0) oss << ", ";
+				oss << m_transform(row, col);
+			}
+		}
 	return QString(oss.str().c_str());
 }
 
@@ -132,7 +132,7 @@ Point2f squareToUniformDiskConcentric(const Point2f &sample) {
 	} else { /* Regions 3/4 */
 		if (r1<r2)
 			coords = Point2f(-r1, (M_PI/4.0f) * (4.0f + r2/r1));
-		else 
+		else
 			coords = Point2f(-r2, (M_PI/4.0f) * (6.0f - r1/r2));
 	}
 
@@ -272,35 +272,32 @@ float fresnel(float cosThetaI, float extIOR, float intIOR) {
 	float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
 
 	float Rs = (etaI * cosThetaI - etaT * cosThetaT)
-	         / (etaI * cosThetaI + etaT * cosThetaT);
+			 / (etaI * cosThetaI + etaT * cosThetaT);
 	float Rp = (etaT * cosThetaI - etaI * cosThetaT)
-	         / (etaT * cosThetaI + etaI * cosThetaT);
+			 / (etaT * cosThetaI + etaI * cosThetaT);
 
 	return (Rs * Rs + Rp * Rp) / 2.0f;
 }
 
 Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
-    float etaI = extIOR, etaT = intIOR;
+	float etaI = extIOR, etaT = intIOR;
 
-    bool entering = (cosThetaI > 0.0f);
+	bool entering = (cosThetaI > 0.0f);
 
-    if(!entering) {
-        std::swap(etaI,etaT);
-        cosThetaI = -cosThetaI;
-    }
+	if (!entering) {
+		std::swap(etaI,etaT);
+		cosThetaI = -cosThetaI;
+	}
 
-    float eta = etaI/etaT,
-            sinThetaTSqr = eta*eta* (1-cosThetaI*cosThetaI);
-    float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
+	float eta = etaI/etaT,
+		  sinThetaTSqr = eta*eta* (1-cosThetaI*cosThetaI);
+	float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
 
-    if(entering){
-        return Vector3f(eta*wi.x(), eta*wi.y(), -cosThetaT);
-    }
-    else{
-        return Vector3f(eta*wi.x(), eta*wi.y(), cosThetaT);
-    }
+	if (entering) {
+		cosThetaT = -cosThetaT;
+	}
 
-
+	return Vector3f(-eta*wi.x(), -eta*wi.y(), cosThetaT);
 }
 
 NORI_NAMESPACE_END
