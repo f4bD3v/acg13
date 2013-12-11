@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="128"/>
+		<integer name="sampleCount" value="64"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -16,7 +16,13 @@
 		<integer name="height" value="512"/>
 	</camera>
     
-    
+    <!-- bottom floor -->
+    <mesh type="obj">
+        <string name="filename" value="plane.obj"/>
+        <bsdf type="diffuse">
+            <color name="albedo" value="0.2,0.1,0.204"/>
+        </bsdf>
+    </mesh>
     
     <!-- right wall -->
     <mesh type="obj">
@@ -26,21 +32,9 @@
             <translate value="1, 1, 0"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.255,0.064,0.064"/>
+           <color name="albedo" value="1,0.1,0.1"/>
         </bsdf>
     </mesh>
-	
-	<!-- left wall -->
-    <mesh type="obj">
-		<string name="filename" value="plane.obj"/>
-		<transform name = "toWorld">
-            <rotate axis="0, 0, 1" angle="-90"/>
-            <translate value="-1, 1, 0"/>
-		</transform>
-		<bsdf type="diffuse">
-			<color name="albedo" value="0.1, 0.149, 0.3"/>
-		</bsdf>
-	</mesh>
     
     <!-- back wall -->
     <mesh type="obj">
@@ -50,15 +44,7 @@
             <translate value="0, 1, -1"/>
         </transform>
         <bsdf type="diffuse">
-             <color name="albedo" value="0.2,0.1,0.204"/>
-        </bsdf>
-    </mesh>
-	
-    <!-- bottom floor -->
-    <mesh type="obj">
-        <string name="filename" value="plane.obj"/>
-        <bsdf type="diffuse">
-            <color name="albedo" value="0.2,0.1,0.204"/>
+             <color name="albedo" value="0.1,0.1,1"/>
         </bsdf>
     </mesh>
     
@@ -91,7 +77,19 @@
         
 	</mesh>
     
-	
+	<!-- mirror -->
+    <mesh type="obj">
+		<string name="filename" value="plane.obj"/>
+		<transform name = "toWorld">
+            <rotate axis="0, 0, 1" angle="-90"/>
+            <translate value="-1, 1, 0"/>
+		</transform>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="5"/>
+			<color name="color" value="1,1,1"/>
+		</bsdf>
+	</mesh>
 	
 	<!--Table-->
 	<!--
@@ -110,31 +108,34 @@
 			<color name="color" value="1.7,0.1,2"/>
  		</bsdf>
 	</mesh>-->
+		
 	
-	<!--Sphere1-->
+	<!--Chair-->
 	<mesh type = "obj">
-		<string name="filename" value = "sphere.obj"/>
-		<transform name ="toWorld">
-			<scale value="0.3,0.3,0.3"/>
-			<translate value="0.4,0.4,0.6"/>
+		<string name ="filename" value="chair.obj"/>
+		<transform name="toWorld">
+			<translate value="0,-48,5.85"/>
+			<scale value="0.01,0.01,0.01"/>
+			<translate value="-0.4,0.45,-0.4"/>
+			<rotate axis="0,1,0" angle="45"/>
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
 			<float name="eta_t" value="1.5"/>
 			<color name="color" value="1,1,1"/>
- 		</bsdf>
+		</bsdf>
 	</mesh>
 	
-	<!--Sphere2-->
+	<!--Sphere-->
 	<mesh type = "obj">
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
 			<scale value="0.3,0.3,0.3"/>
-			<translate value="-0.4,0.4,-0.3"/>
+			<translate value="0.5,0.3,0"/>
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
-			<float name="eta_t" value="1.5"/>
+			<float name="eta_t" value="3"/>
 			<color name="color" value="1,1,1"/>
  		</bsdf>
 	</mesh>
