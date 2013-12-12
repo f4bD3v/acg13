@@ -42,11 +42,12 @@ void render(Scene *scene, const QString &filename, int version) {
 	ImageBlock result(outputSize, camera->getReconstructionFilter());
 	result.clear();
 
+	/* Allocate memory for the entire light image */
+	ImageBlock light_image(outputSize, camera->getReconstructionFilter());
+	light_image.clear();
+
 	/* Launch the GUI */
 	NoriWindow window(&result);
-
-	/* Create light image */
-	ImageBlock light_image(outputSize, camera->getReconstructionFilter());
 
 	/* Launch one render thread per core */
 	int nCores = getCoreCount();
@@ -67,6 +68,8 @@ void render(Scene *scene, const QString &filename, int version) {
 		threads[i]->wait();
 		delete threads[i];
 	}
+
+	//result.put(light_image);
 
 	/* Now turn the rendered image block into
 	   a properly normalized bitmap */
