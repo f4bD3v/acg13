@@ -9,6 +9,7 @@
 
 #include <nori/acg.h>
 #include <nori/block.h>
+#include <nori/camera.h>
 #include <nori/integrator.h>
 #include <nori/sampler.h>
 #include <nori/luminaire.h>
@@ -22,7 +23,7 @@ NORI_NAMESPACE_BEGIN
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
 #define probability_to_continue_light 0.9
-#define max_eye_points 20
+#define max_eye_points 1
 #define max_light_points 1000
 
 GROUP_NAMESPACE_BEGIN()
@@ -199,11 +200,11 @@ public:
 				Vector3f vec = itsL[real_length-1].p - _ray.o;
 				float dist = std::sqrt(vec.squaredNorm());
 				vec /= dist;
+				Ray3f ray_pixel(_ray.o, vec, Epsilon, dist * (1 - 1e-4f));
 				// 9.b. Check visibility
-				if (!scene->rayIntersect(Ray3f(itsL[real_length-1].p, vec, Epsilon, dist * (1 - 1e-4f)))) {
+				if (!scene->rayIntersect(ray_pixel)) {
 					// 9.c. Find concerned pixel
-///TODO
-					Point2f pixel;
+					Point2f pixel = scene->getCamera()->getPixel(ray_pixel);
 					// 9.d. Update concerned pixel in light_image
 					light_image->lock();
 					light_image->put(pixel, throughputs[real_length-1]/real_length);

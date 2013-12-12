@@ -1,19 +1,19 @@
 /*
-    This file is part of Nori, a simple educational ray tracer
+	This file is part of Nori, a simple educational ray tracer
 
-    Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
+	Copyright (c) 2012 by Wenzel Jakob and Steve Marschner.
 
-    Nori is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License Version 3
-    as published by the Free Software Foundation.
+	Nori is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License Version 3
+	as published by the Free Software Foundation.
 
-    Nori is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+	Nori is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <nori/camera.h>
@@ -25,8 +25,8 @@ NORI_NAMESPACE_BEGIN
 /**
  * \brief Perspective camera with depth of field
  *
- * This class implements a simple perspective camera model. By default, 
- * it uses an infinitesimally small aperture, creating an infinite depth 
+ * This class implements a simple perspective camera model. By default,
+ * it uses an infinitesimally small aperture, creating an infinite depth
  * of field. Use the <tt>apertureRadius</tt> and <tt>focusDistance</tt>
  * parameters to change this behavior.
  */
@@ -67,11 +67,11 @@ public:
 		 *  xProj = cot * x / z
 		 *  yProj = cot * y / z
 		 *  zProj = (far * (z - near)) / (z * (far-near))
-		 *  The cotangent factor ensures that the field of view is 
+		 *  The cotangent factor ensures that the field of view is
 		 *  mapped to the interval [-1, 1].
 		 */
 		float recip = 1.0f / (m_farClip - m_nearClip),
-		      cot = 1.0f / std::tan(degToRad(m_fov / 2.0f));
+			  cot = 1.0f / std::tan(degToRad(m_fov / 2.0f));
 
 		Eigen::Matrix4f perspective;
 		perspective <<
@@ -84,9 +84,11 @@ public:
 		 * Translation and scaling to shift the clip coordinates into the
 		 * range from zero to one. Also takes the aspect ratio into account.
 		 */
-		m_sampleToCamera = Transform( 
+		m_sampleToCamera = Transform(
 			Eigen::DiagonalMatrix<float, 3>(Vector3f(0.5f, -0.5f * aspect, 1.0f)) *
 			Eigen::Translation<float, 3>(1.0f, -1.0f/aspect, 0.0f) * perspective).inverse();
+		m_sampleToCamera_inverse = m_sampleToCamera.inverse();
+		m_cameraToWorld_inverse = m_cameraToWorld.inverse();
 
 		/* If no reconstruction filter was assigned, instantiate a Gaussian filter */
 		if (!m_rfilter)
@@ -99,8 +101,8 @@ public:
 			const Point2f &apertureSample) const {
 		Point2f tmp = squareToUniformDiskConcentric(apertureSample)
 			* m_apertureRadius;
-	
-		/* Compute the corresponding position on the 
+
+		/* Compute the corresponding position on the
 		   near plane (in local camera space) */
 		Point3f nearP = m_sampleToCamera * Point3f(
 			samplePosition.x() * m_invOutputSize.x(),
@@ -126,6 +128,20 @@ public:
 		return Color3f(1.0f);
 	}
 
+	Point2f getPixel(Ray3f &ray) const {
+		// direction of ray in camera coordinates
+		Vector3f d = m_cameraToWorld_inverse  * ray.d;
+		// eye position in camera coordinates
+		Point3f o = m_cameraToWorld_inverse  * ray.o;
+		// projecting on plane z = 1
+		float coeff = (1.0f - o.z()) / d.z();
+		Point2f p = Point2f(o.x(), o.y()) + coeff * Vector2f(d.x(), d.y());
+		// go to sample value to find right pixel
+		Point3f pp = m_sampleToCamera_inverse * Point3f(p.x(), p.y(), 1.0f);
+		Point2f pixel(pp.x() / m_invOutputSize.x(), pp.y() / m_invOutputSize.y());
+		return pixel;
+	}
+
 	void addChild(NoriObject *obj) {
 		switch (obj->getClassType()) {
 			case EReconstructionFilter:
@@ -139,16 +155,16 @@ public:
 					classTypeName(obj->getClassType())));
 		}
 	}
-        
-        /// Return fov as parameter
-        virtual QString getParameters() const {
-                return QString("%1").arg(m_fov);
-        }
-        
-        virtual Transform getTransform() const {
-                return m_cameraToWorld;
-        }
-        
+
+		/// Return fov as parameter
+		virtual QString getParameters() const {
+				return QString("%1").arg(m_fov);
+		}
+
+		virtual Transform getTransform() const {
+				return m_cameraToWorld;
+		}
+
 	/// Return a human-readable summary
 	QString toString() const {
 		return QString(
@@ -174,6 +190,8 @@ private:
 	Vector2f m_invOutputSize;
 	Transform m_sampleToCamera;
 	Transform m_cameraToWorld;
+	Transform m_sampleToCamera_inverse;
+	Transform m_cameraToWorld_inverse;
 	float m_fov;
 	float m_apertureRadius;
 	float m_focusDistance;
