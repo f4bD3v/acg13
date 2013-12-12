@@ -205,7 +205,9 @@ public:
 ///TODO
 					Point2f pixel;
 					// 9.d. Update concerned pixel in light_image
-					light_image->put(pixel, throughputs[real_length-1]);
+					light_image->lock();
+					light_image->put(pixel, throughputs[real_length-1]/real_length);
+					light_image->unlock();
 				}
 
 				// test russian roulette
