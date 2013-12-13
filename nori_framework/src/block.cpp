@@ -131,7 +131,7 @@ BlockGenerator::BlockGenerator(const Vector2i &size, int blockSize)
 	m_timer.start();
 }
 
-bool BlockGenerator::next(ImageBlock &block) {
+bool BlockGenerator::next(ImageBlock &block, ImageBlock &result, ImageBlock &light_image) {
 	m_mutex.lock();
 
 	if (m_blocksLeft == 0) {
@@ -144,6 +144,7 @@ bool BlockGenerator::next(ImageBlock &block) {
 	block.setSize((m_size - pos).cwiseMin(Vector2i::Constant(m_blockSize)));
 
 	if (--m_blocksLeft == 0) {
+		result.put(light_image);
 		cout << "Rendering finished (took " << m_timer.elapsed() << " ms)" << endl;
 		m_mutex.unlock();
 		return true;
@@ -192,7 +193,7 @@ void BlockRenderThread::run() {
 			camera->getReconstructionFilter());
 
 		/* Fetch a block to be rendered from the block generator */
-		while (m_blockGenerator->next(block)) {
+		while (m_blockGenerator->next(block, *m_output, *m_light_image)) {
 			Point2i offset = block.getOffset();
 			Vector2i size  = block.getSize();
 
@@ -221,7 +222,6 @@ void BlockRenderThread::run() {
 			/* The image block has been processed. Now add it to the "big"
 			   block that represents the entire image */
 			m_output->put(block);
-			m_output->put(*m_light_image);
 		}
 	} catch (const NoriException &ex) {
 		cerr << "Caught a critical exception within a rendering thread: " << qPrintable(ex.getReason()) << endl;

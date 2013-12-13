@@ -148,7 +148,7 @@ public:
 	 *
 	 * \return \c false if there were no more blocks
 	 */
-	bool next(ImageBlock &block);
+	bool next(ImageBlock &block, ImageBlock &result, ImageBlock &light_image);
 protected:
 	enum EDirection { ERight = 0, EDown, ELeft, EUp };
 

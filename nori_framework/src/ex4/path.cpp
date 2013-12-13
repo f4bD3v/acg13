@@ -23,8 +23,8 @@ NORI_NAMESPACE_BEGIN
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
 #define probability_to_continue_light 0.9
-#define max_eye_points 1
-#define max_light_points 5
+#define max_eye_points 1000
+#define max_light_points 1000
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -207,19 +207,20 @@ public:
 					// 7.c. Get camera
 					const Camera *camera = scene->getCamera();
 					// 7.d. Compute weight for this contribution
-					float w = (float)(NORI_BLOCK_SIZE * NORI_BLOCK_SIZE)
-							  / (float)(real_length * camera->getOutputSize().x() * camera->getOutputSize().y());
-					w = 1.0f/real_length/20;
+					/*float w = (float)(NORI_BLOCK_SIZE * NORI_BLOCK_SIZE)
+							  / (float)(real_length * sampler->getSampleCount()
+										* camera->getOutputSize().x() * camera->getOutputSize().y());
+					*/float w = 1.0f/real_length;
 					// 7.e. Update concerned pixel in light_image
 					if (real_length == 1)  {
 						light_image->lock();
-						light_image->put(camera->getPixel(ray_pixel), throughputs[0] * 0);
+						light_image->put(camera->getPixel(ray_pixel), throughputs[0] * w);
 						light_image->unlock();
 					} else {
 						BSDFQueryRecord bRec(wi, itsL[real_length-1].toLocal(-ray_pixel.d), ESolidAngle);
 						light_image->lock();
 						light_image->put(camera->getPixel(ray_pixel),
-									 throughputs[real_length-2] * w
+									 throughputs[real_length-1] * w
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
 									 * std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();

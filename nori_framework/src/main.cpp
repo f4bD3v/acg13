@@ -69,8 +69,6 @@ void render(Scene *scene, const QString &filename, int version) {
 		delete threads[i];
 	}
 
-	//result.put(light_image);
-
 	/* Now turn the rendered image block into
 	   a properly normalized bitmap */
 	Bitmap *bitmap = result.toBitmap();
