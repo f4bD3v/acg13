@@ -144,8 +144,10 @@ bool BlockGenerator::next(ImageBlock &block, ImageBlock &result, ImageBlock &lig
 	block.setSize((m_size - pos).cwiseMin(Vector2i::Constant(m_blockSize)));
 
 	if (--m_blocksLeft == 0) {
-		result.put(light_image);
 		cout << "Rendering finished (took " << m_timer.elapsed() << " ms)" << endl;
+		cout << "Adding light image in 5 seconds...\n";
+		sleep(5);
+		result.put(light_image);
 		m_mutex.unlock();
 		return true;
 	}
