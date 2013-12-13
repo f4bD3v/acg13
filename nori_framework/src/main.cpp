@@ -50,7 +50,7 @@ void render(Scene *scene, const QString &filename, int version) {
 	NoriWindow window(&result);
 
 	/* Launch one render thread per core */
-	int nCores = 1;//getCoreCount();
+	int nCores = getCoreCount();
 	std::vector<BlockRenderThread *> threads;
 	for (int i=0; i<nCores; ++i) {
 		BlockRenderThread *thread = new BlockRenderThread(
