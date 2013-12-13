@@ -246,10 +246,13 @@ public:
 					Vector3f vec = itsL[0].p - itsL[1].p;
 					float d = std::sqrt(vec.squaredNorm());
 					vec /= d;
-					throughputs[1] = throughputs[0] * INV_PI
-									 * scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
-									 * normal_path.dot(-vec)
-									 / probability_to_continue_light;
+					d = -normal_path.dot(vec);
+					if (d > 0) {
+						throughputs[1] = throughputs[0] * INV_PI
+									 	* scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
+									 	* d
+									 	/ probability_to_continue_light;
+					}
 				} else {
 					throughputs[real_length] *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;
 				}
