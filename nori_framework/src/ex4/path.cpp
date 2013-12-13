@@ -207,10 +207,7 @@ public:
 					// 7.c. Get camera
 					const Camera *camera = scene->getCamera();
 					// 7.d. Compute weight for this contribution
-					/*float w = (float)(NORI_BLOCK_SIZE * NORI_BLOCK_SIZE)
-							  / (float)(real_length * sampler->getSampleCount()
-										* camera->getOutputSize().x() * camera->getOutputSize().y());
-					*/float w = 1.0f/real_length;
+					float w = 1.0f/real_length;
 					// 7.e. Update concerned pixel in light_image
 					if (real_length == 1)  {
 						light_image->lock();
@@ -222,13 +219,9 @@ public:
 						light_image->put(camera->getPixel(ray_pixel),
 									 throughputs[real_length-1] * w
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
-									 * std::abs(Frame::cosTheta(bRec.wo)));
+									 );//* std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();
 					}
-				} else {
-					light_image->lock();
-					//light_image->put(Point2f(10.0f, 100.0f), Color3f(0.0f));
-					light_image->unlock();
 				}
 
 				// test russian roulette
@@ -248,10 +241,9 @@ public:
 					vec /= d;
 					d = -normal_path.dot(vec);
 					if (d > 0) {
-						throughputs[1] = throughputs[0] * INV_PI
-									 	* scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
-									 	* d
-									 	/ probability_to_continue_light;
+						throughputs[1] = throughputs[0] * INV_PI * d
+										* scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
+										/ probability_to_continue_light;
 					}
 				} else {
 					throughputs[real_length] *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;
