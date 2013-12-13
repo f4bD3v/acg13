@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="64"/>
+		<integer name="sampleCount" value="1"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -20,7 +20,7 @@
     <mesh type="obj">
         <string name="filename" value="plane.obj"/>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.255,0.255,0"/>
+            <color name="albedo" value="0.2,0.1,0.204"/>
         </bsdf>
     </mesh>
     
@@ -32,7 +32,7 @@
             <translate value="1, 1, 0"/>
         </transform>
         <bsdf type="diffuse">
-           <color name="albedo" value="0.255,0.255,0"/>
+			<color name="albedo" value="1,0.1,0.1"/>
         </bsdf>
     </mesh>
     
@@ -44,7 +44,7 @@
             <translate value="0, 1, -1"/>
         </transform>
         <bsdf type="diffuse">
-             <color name="albedo" value="0.1,0.1,1"/>
+			<color name="albedo" value="0.1,0.1,1"/>
         </bsdf>
     </mesh>
     
@@ -56,19 +56,20 @@
             <translate value="0, 2, 0"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.255,0.255,0"/>
+            <color name="albedo" value="0.2,0.1,0.204"/>
         </bsdf>
     </mesh>
     
     <!-- light -->
 	<mesh type="obj">
-		<string name="filename" value="sphere.obj"/>
+		<string name="filename" value="plane.obj"/>
         <transform name="toWorld">
-            <scale value="0.1, 0.1, 0.1"/>
-            <translate value="0, 1.98, 0"/>
+            <scale value="0.2, 0.2, 0.2"/>
+			<rotate axis="1, 0, 0" angle="180"/>
+            <translate value="0, 2, 0"/>
         </transform>
 		<luminaire type="area">
-			<color name="radiance" value="20, 30, 12"/>
+			<color name="radiance" value="100, 150, 60"/>
 		</luminaire>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0, 0, 0"/>
@@ -86,28 +87,28 @@
 		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
 			<float name="eta_t" value="5"/>
-			<color name="color" value="0.5,0.5,0.5"/>
+			<color name="color" value="1,1,1"/>
 		</bsdf>
 	</mesh>
 	
 	<!--Table-->
 	<!--
-	<mesh type = "obj">
-		<string name="filename" value = "table.obj"/>
-		<transform name ="toWorld">
-			<scale value="0.0015,0.0015,0.0015"/>
-			<translate value="0.01155,0.4595,-0.4545"/>
-			<rotate axis="1,0,0" angle = "270"/>
-			<translate value="0.5,0.45,0.6"/>
-			<scale value="1.1,1.1,1.1"/>
-		</transform>
-		<bsdf type="dielectric">
-            <float name="eta_i" value="1"/>
-			<float name="eta_t" value="1.5"/>
-			<color name="color" value="1.7,0.1,2"/>
- 		</bsdf>
-	</mesh>-->
-		
+	 <mesh type = "obj">
+	 <string name="filename" value = "table.obj"/>
+	 <transform name ="toWorld">
+	 <scale value="0.0015,0.0015,0.0015"/>
+	 <translate value="0.01155,0.4595,-0.4545"/>
+	 <rotate axis="1,0,0" angle = "270"/>
+	 <translate value="0.5,0.45,0.6"/>
+	 <scale value="1.1,1.1,1.1"/>
+	 </transform>
+	 <bsdf type="dielectric">
+	 <float name="eta_i" value="1"/>
+	 <float name="eta_t" value="1.5"/>
+	 <color name="color" value="1.7,0.1,2"/>
+	 </bsdf>
+	 </mesh>-->
+	
 	
 	<!--Chair-->
 	<mesh type = "obj">
@@ -118,10 +119,10 @@
 			<translate value="-0.4,0.45,-0.4"/>
 			<rotate axis="0,1,0" angle="45"/>
 		</transform>
-		<bsdf type="refractive">
+		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
-			<float name="eta_t" value="3"/>
-			<color name="color" value="0.5,0.5,0.5"/>
+			<float name="eta_t" value="1.5"/>
+			<color name="color" value="1,1,1"/>
 		</bsdf>
 	</mesh>
 	
@@ -132,14 +133,13 @@
 			<scale value="0.3,0.3,0.3"/>
 			<translate value="0.5,0.3,0"/>
 		</transform>
-		<bsdf type="refractive">
+		<bsdf type="dielectric">
             <float name="eta_i" value="1"/>
-			<float name="eta_t" value="1.5"/>
-			<color name="color" value="0.5,0.5,0.5"/>
- 		</bsdf>
+			<float name="eta_t" value="3"/>
+			<color name="color" value="1,1,1"/>
+		</bsdf>
 	</mesh>
     
     
     
 </scene>
-

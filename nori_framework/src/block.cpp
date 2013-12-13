@@ -145,9 +145,21 @@ bool BlockGenerator::next(ImageBlock &block, ImageBlock &result, ImageBlock &lig
 
 	if (--m_blocksLeft == 0) {
 		cout << "Rendering finished (took " << m_timer.elapsed() << " ms)" << endl;
-		cout << "Adding light image in 5 seconds...\n";
-		sleep(5);
-		result.put(light_image);
+		cout << "Do you want to add the light image ? [y/n] ";
+		bool answered = false;
+		std::string s;
+		while (!answered) {
+			std::cin >> s;
+			if (s.compare("y") == 0) {
+				answered = true;
+				result.put(light_image);
+				cout << "Light image added.\n";
+			} else if (s.compare("n") == 0) {
+				answered = true;
+			} else {
+				cout << "Do you want to add the light image ? [y/n] ";
+			}
+		}
 		m_mutex.unlock();
 		return true;
 	}
