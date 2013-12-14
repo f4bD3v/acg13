@@ -131,7 +131,7 @@ BlockGenerator::BlockGenerator(const Vector2i &size, int blockSize)
 	m_timer.start();
 }
 
-bool BlockGenerator::next(ImageBlock &block, ImageBlock &result, ImageBlock &light_image) {
+bool BlockGenerator::next(ImageBlock &block) {
 	m_mutex.lock();
 
 	if (m_blocksLeft == 0) {
@@ -145,21 +145,6 @@ bool BlockGenerator::next(ImageBlock &block, ImageBlock &result, ImageBlock &lig
 
 	if (--m_blocksLeft == 0) {
 		cout << "Rendering finished (took " << m_timer.elapsed() << " ms)" << endl;
-		cout << "Do you want to add the light image ? [y/n] ";
-		bool answered = false;
-		std::string s;
-		while (!answered) {
-			std::cin >> s;
-			if (s.compare("y") == 0) {
-				answered = true;
-				result.put(light_image);
-				cout << "Light image added.\n";
-			} else if (s.compare("n") == 0) {
-				answered = true;
-			} else {
-				cout << "Do you want to add the light image ? [y/n] ";
-			}
-		}
 		m_mutex.unlock();
 		return true;
 	}
@@ -186,8 +171,8 @@ bool BlockGenerator::next(ImageBlock &block, ImageBlock &result, ImageBlock &lig
 }
 
 BlockRenderThread::BlockRenderThread(const Scene *scene, Sampler *sampler,
-		BlockGenerator *blockGenerator, ImageBlock *output, ImageBlock *light_image)
-	: m_scene(scene), m_blockGenerator(blockGenerator), m_output(output), m_light_image(light_image) {
+		BlockGenerator *blockGenerator, ImageBlock *output, ImageBlock *light_image, bool *add)
+	: m_scene(scene), m_blockGenerator(blockGenerator), m_output(output), m_light_image(light_image), m_add(add) {
 	/* Create a new sample generator for the current thread */
 	m_sampler = sampler->clone();
 }
@@ -207,7 +192,7 @@ void BlockRenderThread::run() {
 			camera->getReconstructionFilter());
 
 		/* Fetch a block to be rendered from the block generator */
-		while (m_blockGenerator->next(block, *m_output, *m_light_image)) {
+		while (m_blockGenerator->next(block)) {
 			Point2i offset = block.getOffset();
 			Vector2i size  = block.getSize();
 
@@ -236,6 +221,24 @@ void BlockRenderThread::run() {
 			/* The image block has been processed. Now add it to the "big"
 			   block that represents the entire image */
 			m_output->put(block);
+		}
+		if (*m_add) {
+			*m_add = false;
+			cout << "Do you want to add the light image ? [y/n] ";
+			bool answered = false;
+			std::string s;
+			while (!answered) {
+				std::cin >> s;
+				if (s.compare("y") == 0) {
+					answered = true;
+					m_output->put(*m_light_image);
+					cout << "Light image added.\n";
+				} else if (s.compare("n") == 0) {
+					answered = true;
+				} else {
+					cout << "Do you want to add the light image ? [y/n] ";
+				}
+			}
 		}
 	} catch (const NoriException &ex) {
 		cerr << "Caught a critical exception within a rendering thread: " << qPrintable(ex.getReason()) << endl;

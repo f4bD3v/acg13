@@ -22,8 +22,8 @@ NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
-#define probability_to_continue_light 0.9
-#define max_eye_points 1000
+#define probability_to_continue_light 0.8
+#define max_eye_points 1
 #define max_light_points 1000
 
 GROUP_NAMESPACE_BEGIN()
@@ -150,14 +150,6 @@ public:
 		}
 	}
 
-	/**
-	 * @brief Li
-	 * @param scene
-	 * @param sampler
-	 * @param _ray
-	 * @param light_image
-	 * @return
-	 */
 	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &_ray, ImageBlock *light_image) const {
 		float eta = 1.0f;
 		// ================================================
@@ -199,36 +191,25 @@ public:
 				//    Update light_image and NOT RESULT !
 				// 7.a. Create vector from last its to eye
 				Vector3f vec = itsL[real_length-1].p - _ray.o;
-				float dist = std::sqrt(vec.squaredNorm());
+				float dist = vec.norm();
 				vec /= dist;
-				Ray3f ray_pixel(_ray.o, vec, Epsilon, dist * (1 - 1e-7f));
+				Ray3f ray_pixel(_ray.o, vec, Epsilon, dist * (1 - 1e-4f));
 				// 7.b. Check visibility
 				if (!scene->rayIntersect(ray_pixel)) {
-					// 7.c. Get camera
-					const Camera *camera = scene->getCamera();
-					// 7.d. Compute weight for this contribution
-					/*float w = (float)(NORI_BLOCK_SIZE * NORI_BLOCK_SIZE)
-							  / (float)(real_length * sampler->getSampleCount()
-										* camera->getOutputSize().x() * camera->getOutputSize().y());
-					*/float w = 1.0f/real_length;
-					// 7.e. Update concerned pixel in light_image
+					// 7.c. Update concerned pixel in light_image
 					if (real_length == 1)  {
 						light_image->lock();
-						light_image->put(camera->getPixel(ray_pixel), throughputs[0] * w);
+						light_image->put(scene->getCamera()->getPixel(ray_pixel), throughputs[0]);
 						light_image->unlock();
 					} else {
 						BSDFQueryRecord bRec(wi, itsL[real_length-1].toLocal(-ray_pixel.d), ESolidAngle);
 						light_image->lock();
-						light_image->put(camera->getPixel(ray_pixel),
-									 throughputs[real_length-1] * w
+						light_image->put(scene->getCamera()->getPixel(ray_pixel),
+									 throughputs[real_length-1] // real_length
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
 									 * std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();
 					}
-				} else {
-					light_image->lock();
-					//light_image->put(Point2f(10.0f, 100.0f), Color3f(0.0f));
-					light_image->unlock();
 				}
 
 				// test russian roulette
@@ -248,10 +229,9 @@ public:
 					vec /= d;
 					d = -normal_path.dot(vec);
 					if (d > 0) {
-						throughputs[1] = throughputs[0] * INV_PI
-									 	* scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
-									 	* d
-									 	/ probability_to_continue_light;
+						throughputs[1] = throughputs[0] * INV_PI * d
+										* scene->evalTransmittance(Ray3f(itsL[1].p, vec, 0, d), sampler)
+										/ probability_to_continue_light;
 					}
 				} else {
 					throughputs[real_length] *= throughputs[real_length-1] * bsdfWeight / probability_to_continue_light;

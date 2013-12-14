@@ -45,6 +45,7 @@ void render(Scene *scene, const QString &filename, int version) {
 	/* Allocate memory for the entire light image */
 	ImageBlock light_image(outputSize, camera->getReconstructionFilter());
 	light_image.clear();
+	bool add = true;
 
 	/* Launch the GUI */
 	NoriWindow window(&result);
@@ -54,7 +55,7 @@ void render(Scene *scene, const QString &filename, int version) {
 	std::vector<BlockRenderThread *> threads;
 	for (int i=0; i<nCores; ++i) {
 		BlockRenderThread *thread = new BlockRenderThread(
-			scene, scene->getSampler(), &blockGenerator, &result, &light_image);
+			scene, scene->getSampler(), &blockGenerator, &result, &light_image, &add);
 		thread->start();
 		threads.push_back(thread);
 	}
