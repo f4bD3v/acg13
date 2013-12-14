@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="16"/>
+		<integer name="sampleCount" value="10"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -97,7 +97,7 @@
         
 	</mesh>
 	
-	<!-- light cover -->
+	<!--front cover-->
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
@@ -106,43 +106,46 @@
 			<translate value="0,2,0.3"/>
 		</transform>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.2,0.181,0.197"/>
+			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
 	</mesh>
 	
+	<!--back cover-->
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
 			<scale value="0.2,0.2,0.2"/>
-			<rotate axis="1,0,0" angle="270"/>
+			<rotate axis="1,0,0" angle="90"/>
 			<translate value="0,2,-0.3"/>
 		</transform>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.2,0.181,0.197"/>
+			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
 	</mesh>
 	
-	<mesh type="obj">
-		<string name="filename" value="plane.obj"/>
-		<transform name="toWorld">
-			<scale value="0.2,0.2,0.3"/>
-			<rotate axis="0,0,1" angle="90"/>
-			<translate value="-0.2,2,0"/>
-		</transform>
-		<bsdf type="diffuse">
-			<color name="albedo" value="0.2,0.181,0.197"/>
-		</bsdf>
-	</mesh>
-	
+	<!--left cover-->
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
 			<scale value="0.2,0.2,0.3"/>
 			<rotate axis="0,0,1" angle="270"/>
+			<translate value="-0.2,2,0"/>
+		</transform>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.4,0.4,0.2"/>
+		</bsdf>
+	</mesh>
+	
+	<!--right cover-->
+	<mesh type="obj">
+		<string name="filename" value="plane.obj"/>
+		<transform name="toWorld">
+			<scale value="0.2,0.2,0.3"/>
+			<rotate axis="0,0,1" angle="90"/>
 			<translate value="0.2,2,0"/>
 		</transform>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.2,0.181,0.197"/>
+			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
 	</mesh>
 	
