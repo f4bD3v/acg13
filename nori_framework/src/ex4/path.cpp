@@ -199,25 +199,21 @@ public:
 				//    Update light_image and NOT RESULT !
 				// 7.a. Create vector from last its to eye
 				Vector3f vec = itsL[real_length-1].p - _ray.o;
-				float dist = std::sqrt(vec.squaredNorm());
+				float dist = vec.norm();
 				vec /= dist;
 				Ray3f ray_pixel(_ray.o, vec, Epsilon, dist * (1 - 1e-7f));
 				// 7.b. Check visibility
 				if (!scene->rayIntersect(ray_pixel)) {
-					// 7.c. Get camera
-					const Camera *camera = scene->getCamera();
-					// 7.d. Compute weight for this contribution
-					float w = 1.0f/real_length;
-					// 7.e. Update concerned pixel in light_image
+					// 7.c. Update concerned pixel in light_image
 					if (real_length == 1)  {
 						light_image->lock();
-						light_image->put(camera->getPixel(ray_pixel), throughputs[0] * w);
+						light_image->put(scene->getCamera()->getPixel(ray_pixel), throughputs[0] / real_length);
 						light_image->unlock();
 					} else {
 						BSDFQueryRecord bRec(wi, itsL[real_length-1].toLocal(-ray_pixel.d), ESolidAngle);
 						light_image->lock();
-						light_image->put(camera->getPixel(ray_pixel),
-									 throughputs[real_length-1] * w
+						light_image->put(scene->getCamera()->getPixel(ray_pixel),
+									 throughputs[real_length-1] /real_length
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
 									 );//* std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();
