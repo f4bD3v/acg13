@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="128"/>
+		<integer name="sampleCount" value="16"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -19,8 +19,11 @@
     <!-- bottom floor -->
     <mesh type="obj">
         <string name="filename" value="plane.obj"/>
+        <transform name="toWorld">
+            <scale value="2,1,2"/>
+        </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.2,0.1,0.204"/>
+             <color name="albedo" value="0.196,0.181,0.197"/>
         </bsdf>
     </mesh>
     
@@ -32,7 +35,7 @@
             <translate value="1, 1, 0"/>
         </transform>
         <bsdf type="diffuse">
-           <color name="albedo" value="1,0.1,0.3"/>
+           <color name="albedo" value="0.17, 0.085, 0.11"/>
         </bsdf>
     </mesh>
     
@@ -42,9 +45,10 @@
         <transform name="toWorld">
             <rotate axis="1, 0, 0" angle="90"/>
             <translate value="0, 1, -1"/>
+			<scale value="2,1,1"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.2,0.1,0.204"/>
+             <color name="albedo" value="0.196,0.181,0.197"/>
         </bsdf>
     </mesh>
     
@@ -54,9 +58,10 @@
         <transform name="toWorld">
             <rotate axis="1, 0, 0" angle="180"/>
             <translate value="0, 2, 0"/>
+			<scale value = "2,1,1"/>
         </transform>
         <bsdf type="diffuse">
-            <color name="albedo" value="0.2,0.1,0.204"/>
+             <color name="albedo" value="0.196,0.181,0.197"/>
         </bsdf>
     </mesh>
     
@@ -69,7 +74,7 @@
             <translate value="0, 2, 0"/>
         </transform>
 		<luminaire type="area">
-			<color name="radiance" value="100, 150, 60"/>
+			<color name="radiance" value="200, 200, 200"/>
 		</luminaire>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0, 0, 0"/>
@@ -99,7 +104,7 @@
 			<scale value="0.1,0.1,0.1"/>
 			<rotate axis="0,0,1" angle = "180"/>
 			<rotate axis="1,0,0" angle = "180"/>
-			<rotate axis="0,1,0" angle= "330"/>
+			<rotate axis="0,1,0" angle = "350"/>
 			<translate value="0,0.6,-0.2"/>
 		</transform>
 		<bsdf type="dielectric">

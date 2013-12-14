@@ -3,13 +3,13 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="64"/>
+		<integer name="sampleCount" value="16"/>
 	</sampler>
     
 	<camera type="perspective">
 		<transform name="toWorld">
 			<scale value="-1,1,1"/>
-			<lookat origin="0, 1, 3.41" target="0, 1, 0" up="0, 1, 0"/>
+			<lookat origin="0, 2, 3.41" target="0, 1, 0" up="0, 1, 0"/>
 		</transform>
 		<float name="fov" value="45"/>
 		<integer name="width" value="512"/>
@@ -69,7 +69,7 @@
             <translate value="0, 2, 0"/>
         </transform>
 		<luminaire type="area">
-			<color name="radiance" value="100, 150, 60"/>
+			<color name="radiance" value="100, 100, 100"/>
 		</luminaire>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0, 0, 0"/>
