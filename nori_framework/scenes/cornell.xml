@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="1"/>
+		<integer name="sampleCount" value="3"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -69,7 +69,7 @@
             <translate value="0, 1.999, 0"/>
         </transform>
 		<luminaire type="area">
-			<color name="radiance" value="200, 300, 120"/>
+			<color name="radiance" value="200, 200, 200"/>
 		</luminaire>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0, 0, 0"/>

@@ -148,7 +148,7 @@ public:
 	 *
 	 * \return \c false if there were no more blocks
 	 */
-	bool next(ImageBlock &block, ImageBlock &result, ImageBlock &light_image);
+	bool next(ImageBlock &block);
 protected:
 	enum EDirection { ERight = 0, EDown, ELeft, EUp };
 
@@ -180,7 +180,7 @@ public:
 	 * \ref ImageBlock instance that represents the entire image
 	 */
 	BlockRenderThread(const Scene *scene, Sampler *sampler,
-		BlockGenerator *blockGenerator, ImageBlock *output, ImageBlock *light_image);
+		BlockGenerator *blockGenerator, ImageBlock *output, ImageBlock *light_image, bool *add);
 
 	/// Release all memory
 	virtual ~BlockRenderThread();
@@ -193,6 +193,7 @@ private:
 	ImageBlock *m_output;
 	ImageBlock *m_light_image;
 	Sampler *m_sampler;
+	bool *m_add;
 };
 
 NORI_NAMESPACE_END

@@ -83,7 +83,7 @@ public:
 				eta = 1.0f/eta;
 				cos_theta_i = -cos_theta_i;
 			}
-			return mColor * (1.0f - F_r) //* std::abs(Frame::cosTheta(bRec.wo))
+			return mColor * (1.0f - F_r) * std::abs(Frame::cosTheta(bRec.wo))
 						  / (eta * eta * cos_theta_i);
 		}
 	}

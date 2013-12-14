@@ -22,8 +22,8 @@ NORI_NAMESPACE_BEGIN
 
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
-#define probability_to_continue_light 0.9
-#define max_eye_points 1000
+#define probability_to_continue_light 0.8
+#define max_eye_points 1
 #define max_light_points 1000
 
 GROUP_NAMESPACE_BEGIN()
@@ -150,14 +150,6 @@ public:
 		}
 	}
 
-	/**
-	 * @brief Li
-	 * @param scene
-	 * @param sampler
-	 * @param _ray
-	 * @param light_image
-	 * @return
-	 */
 	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &_ray, ImageBlock *light_image) const {
 		float eta = 1.0f;
 		// ================================================
@@ -201,21 +193,21 @@ public:
 				Vector3f vec = itsL[real_length-1].p - _ray.o;
 				float dist = vec.norm();
 				vec /= dist;
-				Ray3f ray_pixel(_ray.o, vec, Epsilon, dist * (1 - 1e-7f));
+				Ray3f ray_pixel(_ray.o, vec, Epsilon, dist * (1 - 1e-4f));
 				// 7.b. Check visibility
 				if (!scene->rayIntersect(ray_pixel)) {
 					// 7.c. Update concerned pixel in light_image
 					if (real_length == 1)  {
 						light_image->lock();
-						light_image->put(scene->getCamera()->getPixel(ray_pixel), throughputs[0] / real_length);
+						light_image->put(scene->getCamera()->getPixel(ray_pixel), throughputs[0]);
 						light_image->unlock();
 					} else {
 						BSDFQueryRecord bRec(wi, itsL[real_length-1].toLocal(-ray_pixel.d), ESolidAngle);
 						light_image->lock();
 						light_image->put(scene->getCamera()->getPixel(ray_pixel),
-									 throughputs[real_length-1] /real_length
+									 throughputs[real_length-1] // real_length
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
-									 );//* std::abs(Frame::cosTheta(bRec.wo)));
+									 * std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();
 					}
 				}
