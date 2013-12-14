@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scene>
+	<integrator type="path"/>
+	
+	<sampler type="independent">
+		<integer name="sampleCount" value="64"/>
+	</sampler>
+    
+	<camera type="perspective">
+		<transform name="toWorld">
+			<scale value="-1,1,1"/>
+			<lookat origin="0, 1, 3.41" target="0, 1, 0" up="0, 1, 0"/>
+		</transform>
+		<float name="fov" value="45"/>
+		<integer name="width" value="512"/>
+		<integer name="height" value="512"/>
+	</camera>
+    
+    <!-- bottom floor -->
+    <mesh type="obj">
+        <string name="filename" value="plane.obj"/>
+        <bsdf type="diffuse">
+            <color name="albedo" value="0.2,0.1,0.204"/>
+        </bsdf>
+    </mesh>
+    
+    <!-- right wall -->
+    <mesh type="obj">
+        <string name="filename" value="plane.obj"/>
+        <transform name="toWorld">
+            <rotate axis="0, 0, 1" angle="90"/>
+            <translate value="1, 1, 0"/>
+        </transform>
+        <bsdf type="diffuse">
+           <color name="albedo" value="1,0.1,0.1"/>
+        </bsdf>
+    </mesh>
+    
+    <!-- back wall -->
+    <mesh type="obj">
+        <string name="filename" value="plane.obj"/>
+        <transform name="toWorld">
+            <rotate axis="1, 0, 0" angle="90"/>
+            <translate value="0, 1, -1"/>
+        </transform>
+        <bsdf type="diffuse">
+             <color name="albedo" value="0.1,0.1,1"/>
+        </bsdf>
+    </mesh>
+    
+    <!-- top ceiling -->
+    <mesh type="obj">
+        <string name="filename" value="plane.obj"/>
+        <transform name="toWorld">
+            <rotate axis="1, 0, 0" angle="180"/>
+            <translate value="0, 2, 0"/>
+        </transform>
+        <bsdf type="diffuse">
+            <color name="albedo" value="0.2,0.1,0.204"/>
+        </bsdf>
+    </mesh>
+    
+    <!-- light -->
+	<mesh type="obj">
+		<string name="filename" value="plane.obj"/>
+        <transform name="toWorld">
+            <scale value="0.2, 0.2, 0.2"/>
+			<rotate axis="1, 0, 0" angle="180"/>
+            <translate value="0, 2, 0"/>
+        </transform>
+		<luminaire type="area">
+			<color name="radiance" value="100, 150, 60"/>
+		</luminaire>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0, 0, 0"/>
+		</bsdf>
+        
+	</mesh>
+    
+	<!-- mirror -->
+    <mesh type="obj">
+		<string name="filename" value="plane.obj"/>
+		<transform name = "toWorld">
+            <rotate axis="0, 0, 1" angle="-90"/>
+            <translate value="-1, 1, 0"/>
+		</transform>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="5"/>
+			<color name="color" value="1,1,1"/>
+		</bsdf>
+	</mesh>
+	
+	<!--Table-->
+	<!--
+	<mesh type = "obj">
+		<string name="filename" value = "table.obj"/>
+		<transform name ="toWorld">
+			<scale value="0.0015,0.0015,0.0015"/>
+			<translate value="0.01155,0.4595,-0.4545"/>
+			<rotate axis="1,0,0" angle = "270"/>
+			<translate value="0.5,0.45,0.6"/>
+			<scale value="1.1,1.1,1.1"/>
+		</transform>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="1.5"/>
+			<color name="color" value="1.7,0.1,2"/>
+ 		</bsdf>
+	</mesh>-->
+		
+	
+	<!--Chair-->
+	<mesh type = "obj">
+		<string name ="filename" value="chair.obj"/>
+		<transform name="toWorld">
+			<translate value="0,-48,5.85"/>
+			<scale value="0.01,0.01,0.01"/>
+			<translate value="-0.4,0.45,-0.4"/>
+			<rotate axis="0,1,0" angle="45"/>
+		</transform>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="1.5"/>
+			<color name="color" value="1,1,1"/>
+		</bsdf>
+	</mesh>
+	
+	<!--Sphere-->
+	<mesh type = "obj">
+		<string name="filename" value = "sphere.obj"/>
+		<transform name ="toWorld">
+			<scale value="0.3,0.3,0.3"/>
+			<translate value="0.5,0.3,0"/>
+		</transform>
+		<bsdf type="dielectric">
+            <float name="eta_i" value="1"/>
+			<float name="eta_t" value="3"/>
+			<color name="color" value="1,1,1"/>
+ 		</bsdf>
+	</mesh>
+    
+    
+    
+</scene>
+
