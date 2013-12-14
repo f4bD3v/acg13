@@ -5,3 +5,5 @@ convert +append 1_3.png 2_2.png 3_1.png line_2.png
 convert +append 1_4.png 2_3.png 3_2.png 4_1.png line_3.png
 convert +append 1_5.png 2_4.png 3_3.png 4_2.png 5_1.png line_4.png
 
+convert -gravity center -alpha set -background "#00ff00" -append line_1.png line_2.png line_3.png line_4.png pyramid.png
+convert -transparent "#00ff00" pyramid.png pyramid.png
