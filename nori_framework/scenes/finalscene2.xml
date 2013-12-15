@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="5"/>
+		<integer name="sampleCount" value="10"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -85,8 +85,8 @@
 		<string name="filename" value="plane.obj"/>
         <transform name="toWorld">
             <scale value="0.2, 0.2, 0.2"/>
-			<rotate axis="1, 0, 0" angle="180"/>
-            <translate value="0, 1.999, 0"/>
+			<!--rotate axis="1, 0, 0" angle="180"/-->
+            <translate value="0, 1.8, 0"/>
         </transform>
 		<luminaire type="area">
 			<color name="radiance" value="100, 100, 100"/>
@@ -94,60 +94,72 @@
 		<bsdf type="diffuse">
 			<color name="albedo" value="0, 0, 0"/>
 		</bsdf>
-        
+	</mesh>
+	
+	<!--bottom cover-->
+	<mesh type="obj">
+		<string name="filename" value="plane.obj"/>
+        <transform name="toWorld">
+            <scale value="0.2, 0.3, 0.3"/>
+			<rotate axis="1, 0, 0" angle="180"/>
+            <translate value="0, 1.79, 0"/>
+        </transform>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.4, 0.4, 0.2"/>
+		</bsdf>
 	</mesh>
 	
 	<!--front cover-->
-	<mesh type="obj">
+	<!--mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
-			<scale value="0.2,0.2,0.2"/>
+			<scale value="0.2,0.2,0.08"/>
 			<rotate axis="1,0,0" angle="90"/>
-			<translate value="0,2,0.3"/>
+			<translate value="0,1.8,0.3"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
-	</mesh>
+	</mesh-->
 	
 	<!--back cover-->
-	<mesh type="obj">
+	<!--mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
 			<scale value="0.2,0.2,0.2"/>
 			<rotate axis="1,0,0" angle="90"/>
-			<translate value="0,2,-0.3"/>
+			<translate value="0,1.9,-0.3"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
-	</mesh>
+	</mesh-->
 	
 	<!--left cover-->
-	<mesh type="obj">
+	<!--mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
 			<scale value="0.2,0.2,0.3"/>
 			<rotate axis="0,0,1" angle="270"/>
-			<translate value="-0.2,2,0"/>
+			<translate value="-0.2,1.9,0"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
-	</mesh>
+	</mesh-->
 	
 	<!--right cover-->
-	<mesh type="obj">
+	<!--mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
 			<scale value="0.2,0.2,0.3"/>
 			<rotate axis="0,0,1" angle="90"/>
-			<translate value="0.2,2,0"/>
+			<translate value="0.2,1.9,0"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.4,0.4,0.2"/>
 		</bsdf>
-	</mesh>
+	</mesh-->
 	
 	<!--Sphere1-->
 	<mesh type = "obj">
