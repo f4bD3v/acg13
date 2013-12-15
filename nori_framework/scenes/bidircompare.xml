@@ -84,7 +84,7 @@
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
         <transform name="toWorld">
-            <scale value="0.2, 0.2, 0.2"/>
+            <scale value="0.1, 0.1, 0.1"/>
 			<rotate axis="1, 0, 0" angle="180"/>
             <translate value="0, 1.999, 0"/>
         </transform>
@@ -101,9 +101,9 @@
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
-			<scale value="0.2,0.2,0.2"/>
+			<scale value="0.1,0.4,0.2"/>
 			<rotate axis="1,0,0" angle="90"/>
-			<translate value="0,2,0.3"/>
+			<translate value="0,2,0.15"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.2,0.181,0.197"/>
@@ -113,9 +113,9 @@
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
-			<scale value="0.2,0.2,0.2"/>
+			<scale value="0.1,0.4,0.2"/>
 			<rotate axis="1,0,0" angle="270"/>
-			<translate value="0,2,-0.3"/>
+			<translate value="0,2,-0.15"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.2,0.181,0.197"/>
@@ -125,9 +125,9 @@
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
-			<scale value="0.2,0.2,0.3"/>
+			<scale value="0.2,0.4,0.15"/>
 			<rotate axis="0,0,1" angle="90"/>
-			<translate value="-0.2,2,0"/>
+			<translate value="-0.1,2,0"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.2,0.181,0.197"/>
@@ -137,9 +137,9 @@
 	<mesh type="obj">
 		<string name="filename" value="plane.obj"/>
 		<transform name="toWorld">
-			<scale value="0.2,0.2,0.3"/>
+			<scale value="0.2,0.4,0.15"/>
 			<rotate axis="0,0,1" angle="270"/>
-			<translate value="0.2,2,0"/>
+			<translate value="0.1,2,0"/>
 		</transform>
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.2,0.181,0.197"/>
