@@ -23,8 +23,10 @@ NORI_NAMESPACE_BEGIN
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
 #define probability_to_continue_light 0.8
-#define max_eye_points 1
-#define max_light_points 1000
+// [1, inf] Default is std::numeric_limits<float>::infinity()
+#define max_light_points std::numeric_limits<float>::infinity()
+// [1, inf] Default is std::numeric_limits<float>::infinity()
+#define max_eye_points std::numeric_limits<float>::infinity()
 
 GROUP_NAMESPACE_BEGIN()
 
@@ -184,7 +186,7 @@ public:
 			real_length = 1;
 			Color3f bsdfWeight = Color3f(1.0f);
 			Vector3f wi;
-			while (real_length < max_light_points) {
+			while (real_length <= max_light_points) {
 				// 7. Check eye path of length 0
 				//    Try to connect itsL[real_length-1] to the eye
 				//    Find concerned pixel (most probably not the current one)
