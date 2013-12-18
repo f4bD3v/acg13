@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="1"/>
+		<integer name="sampleCount" value="128"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -120,7 +120,7 @@
 		</transform>
 		<bsdf type="mirror">
             <float name="eta_i" value="1"/>
-			<float name="eta_t" value="10"/>
+			<float name="eta_t" value="100"/>
 			<color name="color" value="1,1,1"/>
  		</bsdf>
 	</mesh>

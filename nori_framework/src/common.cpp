@@ -284,15 +284,21 @@ Vector3f refract(Vector3f wi, float cosThetaI, float extIOR, float intIOR) {
 
 	bool entering = (cosThetaI > 0.0f);
 
+	/* Swap the indices of refraction if the interaction starts
+   		at the inside of the object */
 	if (!entering) {
 		std::swap(etaI,etaT);
 		cosThetaI = -cosThetaI;
 	}
 
+	/* Using Snell's law, calculate the squared sine of the
+  	 	angle between the normal and the transmitted ray */
 	float eta = etaI/etaT,
 		  sinThetaTSqr = eta*eta* (1-cosThetaI*cosThetaI);
 	float cosThetaT = std::sqrt(fmax(0.0f,1.0f - sinThetaTSqr));
 
+	/* The z-coefficient of the outgoing direction must be negative
+		if the ray is going in the material */
 	if (entering)
 		cosThetaT = -cosThetaT;
 
