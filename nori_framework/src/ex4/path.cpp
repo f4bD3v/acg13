@@ -24,9 +24,9 @@ NORI_NAMESPACE_BEGIN
 #define probability_to_continue_eye 0.8
 #define probability_to_continue_light 0.8
 // [1, inf] Default is std::numeric_limits<float>::infinity()
-#define max_light_points 2
+#define max_light_points std::numeric_limits<float>::infinity()
 // [1, inf] Default is std::numeric_limits<float>::infinity()
-#define max_eye_points 1
+#define max_eye_points std::numeric_limits<float>::infinity()
 
 GROUP_NAMESPACE_BEGIN()
 
