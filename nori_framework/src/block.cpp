@@ -222,8 +222,9 @@ void BlockRenderThread::run() {
 			   block that represents the entire image */
 			m_output->put(block);
 		}
+		// check whether this thread must add the light image
 		if (*m_add) {
-			*m_add = false;
+			*m_add = false; // other threads cannot add it
 			cout << "Do you want to add the light image ? [y/n] ";
 			bool answered = false;
 			std::string s;

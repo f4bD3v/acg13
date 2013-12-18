@@ -39,8 +39,11 @@ public:
 		if (cos_theta_i == 0)
 			return Color3f(0.0f);
 
+		// test if, by chance, wo is the same (allowing a threshold of 1e-3)
+		// as the direction forced by the refraction/reflection
 		Vector3f w = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t) - bRec.wo;
 		if ((w.array() <= 1e-3 && w.array() >= -1e-3).all()) {
+			// refraction
 			float eta = m_eta_i/m_eta_t;
 			if (cos_theta_i < 0) {
 				eta = 1.0f/eta;
@@ -51,15 +54,18 @@ public:
 		} else {
 			w = reflect(bRec.wi) - bRec.wo;
 			if ((w.array() <= 1e-3 && w.array() >= -1e-3).all()) {
+				// reflection
 				float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
 				return mColor * F_r / std::abs(Frame::cosTheta(bRec.wo));
 			}
 		}
+		// otherwise return 0, often the case
 		return Color3f(0.0f);
 	}
 
 	/// Compute the density of \ref sample() wrt. solid angles
 	float pdf(const BSDFQueryRecord &bRec) const {
+		// no random, direction is forced so return 1
 		return 1.0f;
 	}
 

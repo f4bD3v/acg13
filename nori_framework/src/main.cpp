@@ -45,7 +45,7 @@ void render(Scene *scene, const QString &filename, int version) {
 	/* Allocate memory for the entire light image */
 	ImageBlock light_image(outputSize, camera->getReconstructionFilter());
 	light_image.clear();
-	bool add = true;
+	bool add = true; // whether the light image was added to result
 
 	/* Launch the GUI */
 	NoriWindow window(&result);
