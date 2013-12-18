@@ -3,7 +3,7 @@
 	<integrator type="path"/>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="32"/>
+		<integer name="sampleCount" value="500"/>
 	</sampler>
     
 	<camera type="perspective">
@@ -96,39 +96,25 @@
 		</bsdf>
 	</mesh>
 	
-	
-	<mesh type="obj">
-		<string name="filename" value="plane.obj"/>
-		<transform name="toWorld">
-			<rotate axis="1,0,0" angle="270"/>
-			<translate value="0,1,0.5"/>
-		</transform>
-		<bsdf type="dielectric">
-			<color name="color" value="1,1,1"/>
-			<float name="eta_i" value="1"/>
-			<float name="eta_t" value="1.5"/>
-		</bsdf>
-	</mesh>
-	
 	<!--Sphere1-->
 	<mesh type = "obj">
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
 			<scale value="0.35,0.35,0.35"/>
-			<translate value="0.2,0.8,-0.5"/>
+			<translate value="0.5,0.8,0.5"/>
 		</transform>
 		<bsdf type="dielectric">
-            <float name="eta_i" value="1.0"/>
-			<float name="eta_t" value="1.5"/>
+            <float name="eta_i" value="1.5"/>
+			<float name="eta_t" value="1"/>
 			<color name="color" value="1,1,1"/>
  		</bsdf>
 	</mesh>
-	<!--Sphere2
+	<!--Sphere2-->
 	<mesh type = "obj">
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
 			<scale value="0.35,0.35,0.35"/>
-			<translate value="0,0.8,0"/>
+			<translate value="-0.5,0.5,0"/>
 		</transform>
 		<bsdf type="dielectric">
             <float name="eta_i" value="1.5"/>
@@ -136,7 +122,7 @@
 			<color name="color" value="1,1,1"/>
  		</bsdf>
 	</mesh>
-	Sphere3
+	<!--Sphere3-->
 	<mesh type = "obj">
 		<string name="filename" value = "sphere.obj"/>
 		<transform name ="toWorld">
@@ -148,7 +134,7 @@
 			<float name="eta_t" value="1.0"/>
 			<color name="color" value="1,1,1"/>
  		</bsdf>
-	</mesh>-->
+	</mesh>
     
     
 </scene>
