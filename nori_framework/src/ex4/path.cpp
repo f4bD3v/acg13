@@ -23,15 +23,15 @@ NORI_NAMESPACE_BEGIN
 #define GROUP_NUMBER 10
 #define probability_to_continue_eye 0.8
 #define probability_to_continue_light 0.8
-// [1, inf] Default is std::numeric_limits<float>::infinity()
-#define max_light_points 2
-// [1, inf] Default is std::numeric_limits<float>::infinity()
-#define max_eye_points 1
+// max_light_points in [1, inf], default is std::numeric_limits<float>::infinity()
+#define max_light_points std::numeric_limits<float>::infinity()
+// max_eye_points in [1, inf], default is std::numeric_limits<float>::infinity()
+#define max_eye_points std::numeric_limits<float>::infinity()
 
 GROUP_NAMESPACE_BEGIN()
 
 /**
- * Simple path tracer implementation
+ * Our bidirectional path tracer implementation
  */
 class PathTracer:public Integrator {
 public:
@@ -116,8 +116,7 @@ public:
 	}
 
 	/**
-	 * \brief Directly sample the lights, providing a sample weighted by 1/pdf
-	 * where pdf is the probability of sampling that given sample
+	 * \brief Directly sample the given point on the light
 	 *
 	 * \param scene
 	 * the scene to work with
@@ -152,13 +151,25 @@ public:
 		}
 	}
 
+	/// The real stuff happens here !
 	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &_ray, ImageBlock *light_image) const {
 		float eta = 1.0f;
 		// ================================================
 		// ================== LIGHT PATH ==================
 		// ================================================
+		// Initialize storing structures for
+		// - intersections in the light path
+		// - throughputs along the light path
+		// --> allocate 21 free spots (0.8)^21 < 1%
 		std::vector<Intersection> itsL;
+		itsL.reserve(21);
 		std::vector<Color3f> throughputs;
+		throughputs.reserve(21);
+		// Values needed later :
+		// - number of used spots in the structures
+		// - number of luminaires in the scene
+		// - normal wrt the first point of light path
+		// - luminaire containing the first point of light path
 		unsigned int real_length = 0;
 		int luminaires_size;
 		Normal3f normal_path;
@@ -207,7 +218,7 @@ public:
 						BSDFQueryRecord bRec(wi, itsL[real_length-1].toLocal(-ray_pixel.d), ESolidAngle);
 						light_image->lock();
 						light_image->put(scene->getCamera()->getPixel(ray_pixel),
-									 throughputs[real_length-1] // real_length
+									 throughputs[real_length-1]
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
 									 * std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();

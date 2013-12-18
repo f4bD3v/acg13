@@ -45,6 +45,7 @@ public:
 		// This is the ratio of the the light that is reflected
 		float F_r = fresnel(cos_theta_i, m_eta_i, m_eta_t);
 
+
 		//Compute the refracted direction with Snell's law and substract the outgoing direction of
 		// the bRec. If the difference is small enough, we have refraction
 		Vector3f w = refract(bRec.wi, cos_theta_i, m_eta_i, m_eta_t) - bRec.wo;
