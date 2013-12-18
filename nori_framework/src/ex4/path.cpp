@@ -218,7 +218,7 @@ public:
 						BSDFQueryRecord bRec(wi, itsL[real_length-1].toLocal(-ray_pixel.d), ESolidAngle);
 						light_image->lock();
 						light_image->put(scene->getCamera()->getPixel(ray_pixel),
-									 throughputs[real_length-1] // real_length
+									 throughputs[real_length-1]
 									 * itsL[real_length-1].mesh->getBSDF()->eval(bRec)
 									 * std::abs(Frame::cosTheta(bRec.wo)));
 						light_image->unlock();
